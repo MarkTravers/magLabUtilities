@@ -1,0 +1,19 @@
+        # model type
+        cooperative
+        # abscissa
+        mcurrent
+        # ordinate
+        xaimur
+        # Coercive Field (A/m)  (governs virgin curve)
+        820.0
+        # Initial susceptibility 
+        75.0
+        # Saturation magnetization (A/m)
+        1660000.0
+        # option
+        &option exponential         # specify the exponential cooperative mode
+         
+        #Hcoop  (used after reversal)
+        820
+        #Hanh   (both virgin and loop)
+        3200

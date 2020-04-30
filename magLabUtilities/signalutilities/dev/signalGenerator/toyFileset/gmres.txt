@@ -1,0 +1,12 @@
+# Solver Type (pardiso, ConjugateGradient, BiConjugateGradient, BiCGSTAB, GMRES, etc.)
+  gmres
+  # Max Iterations
+  50
+  # Error Tolerance
+  1e-8
+  # Report Status ( every N iterations)
+  10
+  # L
+  16
+     # Preconditioner Type ('None', 'Diagonal') and Usage ('Left', 'Right', 'Split', etc.)
+     Matrix Left

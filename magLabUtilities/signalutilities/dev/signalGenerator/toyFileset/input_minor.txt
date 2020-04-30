@@ -1,0 +1,236 @@
+##### section : output #####
+   # Output file path
+   ./
+
+   # Output job name ("none" for no job name)
+   ring_Minor
+   
+####### section user units
+   &units  mm
+
+##### section : mesh #####
+   # Mesh file type (Universal,Genesis,Nystrom)
+   Universal
+
+   # Mesh file name
+   ring.unv
+
+   # Mesh Units (meter, cm, mm, micron, yard, foot, inc, mil, or "other XX")
+   #     If 'other', then  specify scale factor XX such that XX * 1 meter = MeshUnits
+   mm
+
+##### section : basis order #####
+   # Minimum/Maximum Order of basis function
+   0  0
+   # Minimum/Maximum edge lengths for basis order distribution
+   1.0 1.0
+
+##### section : floating-point output format #####
+   # Format type ('default','none','fixed','scientific')
+   none
+   # Width / Precision
+   16   8
+
+##### section : material #####
+   # Number of materials
+   2
+
+   # Material name
+   DefaultMaterial
+      # Material type
+      IsotropicLossless
+      # Group name
+      none
+      # epsilon_r, mu_r
+      1.0   1.0
+
+   # Material name
+   MagneticMaterial
+      # Material type
+      NonLinear
+      # Group name
+      MagneticMaterial
+      # epsilon_r, mu_r
+      1.0
+      # tensor   mat.            tensor       initial tensor    options    non-lin      interpolation
+      #        param type         type             values                   function        order
+      &tensor  dxaimur      diagonal real 68.0  68.0  68.0     &nonlinear cooperativeExp.func        0
+
+      # How to set initial material values ( 'default' : values below, 'excitation' : based on incident field
+      #                                      'file' : read previously written tensor file )
+      # This only has effect for materials that implement the set initial value function
+      default
+
+##### section : Background #####
+   # Number of backgrounds
+   2
+
+   # Background name
+   DefaultBackground
+   #DefaultBackground
+      # Background type
+      HomogeneousMedia
+      # Group Name
+      none
+      # Material name
+      DefaultMaterial
+
+   # Background name
+   DefaultBackground_NOT
+      # Background type
+      ImagePlaneHomoMedia
+  # Volume Group Name(s):
+     none
+  # Background Material Name:
+   DefaultMaterial
+  # Number of image planes
+    3
+  # image plane normal
+    x
+  # image plane type
+    pmc
+  # image plane offset
+    0.0
+  # image plane normal
+    y
+  # image plane type
+    pec
+  # image plane offset
+    0.0
+  # image plane normal
+    z
+  # image plane type
+    pec
+  # image plane offset
+    0.0
+
+##### section : source signature #####
+   # Number of source signatures
+   1
+   # Name
+   htime   
+   #
+   CustomWaveformSource
+   # time delay
+   0.0
+   # File name
+   waveform.txt
+
+
+##### section : excitation #####
+
+  # Number of excitations
+   1
+
+   # Excitation name
+   StaticHField
+      # Excitation type
+      Field
+      # Background name
+      DefaultBackground
+      # source signature
+      &source_signature htime
+      # Excitation direction
+        # vertical axis of the cylindrical coordinates of the phi-directed field:
+        0.0 0.0 1.0
+        # choose option for phi-directed field:
+        &azimuthal
+        # R3 of the origin of the phi-directed field:
+        0. 0. 0.
+      # Excitation amplitude
+      1.0
+      # Field type (electric,magnetic)
+      magnetic
+
+
+##### section : probe #####
+   # Number of probes
+   1
+
+   # Probe name
+   DeMagCells
+      # Probe type
+      CurrentPolarization
+      # Background name
+      DefaultBackground
+      #Group name
+      &1 DeMagCells
+      # Polarization current type
+      magnetic
+      # Grid Type ('SystemTestGrid', 'CellNodes', 'TestGrid'; 'TestGrid' requires a grid order)
+      TestGrid
+      # Test Grid Order
+      1
+
+
+##### section : SimulationGroups #####
+   # Number of SimulationGroups
+   1
+   # SimulationGroup name
+   grp
+      # Number of Excitations
+      1
+      # Excitation names
+      StaticHField
+      # Number of Probes
+      1
+      # Probe names
+        DeMagCells
+
+##### section : boundary condition #####
+   # Number of boundary conditions
+   0
+
+##### section : Analysis Type #####
+   # Matrix type (Dense,Logos,FMM)
+   Dense
+
+   # Error Tolerance for Adaptive Integration
+   1.e-4
+
+   # Use saved DOF file : no = do nothing, write = fill/solve normally, write dofs.txt file, 
+   #                    : read = don't fill/solve, read dofs.txt file
+   no
+
+######  section:  Non-linear solver (leave blank, if none) ####
+   # non-linear solver type  (stepped, imi, fmi, or none):
+   transient 
+
+   ## iterative solver file name:
+   gmres.txt
+
+   ## Save file name to read for excitation vector ('none' to re-compute, 'default' to automatically determine, '*' for no jobname, or 'JOBNAME_')
+   none
+
+   ## Save file name to read for system matrix ('none' to re-compute, 'default' to automatically determine, '*' for no jobname, or 'JOBNAME_')
+   none  #default  #none
+
+   ## Keep stored system in memory? (doubles system memory if true)
+   true
+  
+   # Maximum simulation time (s)
+   5001
+
+   # Time Step (s)
+   1
+
+   # Generic non-linear solve
+   none
+
+   # Solve for delta quantities directly?
+   false
+
+# Control Flags
+$SET_NUM_THREADS_TO:16
+$SET_DEBUG_NUM_THREADS_TO:1
+$ZERO_NODES:1e-13
+$MESH_STATISTICS:FULL
+$ADAPTIVE_INTEGRATOR_MAX_SUBDOMAINS:4096
+$GEMF_ADAPTIVE_INTEGRATOR_ZERO_TOLERANCE:1e-10
+$GEMF_PROBE_COMMENT_CHARACTER:%
+
+$MAGSTROM_NON_LINEAR_SOLVER_UPDATE_SYSPROBES
+$MAGSTROM_DO_NOT_EXECUTE_FINAL_SYSTEM_PROBE
+$MAGSTROM_NON_LINEAR_SOLVER_UPDATE_HPROBES
+
+$END
