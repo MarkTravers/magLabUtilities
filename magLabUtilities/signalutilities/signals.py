@@ -1,7 +1,8 @@
 #!python3
 import numpy as np
+from typing import Tuple, Any, List
 from magLabUtilities.exceptions.exceptions import SignalTypeError, SignalValueError
-from magLabUtilities.signalutilities.functions import FunctionGenerator
+from magLabUtilities.signalutilities.functionGenerator import FunctionSequence
 
 class SignalThread:
     def __init__(self, data):
@@ -43,34 +44,94 @@ class SignalThread:
         return self.data.size    
 
 class Signal:
-    def __init__(self, independentThread=None, dependentThread=None, functionGenerator=None):
-        if isinstance(functionGenerator, FunctionGenerator):
-            self.functionGenerator = functionGenerator
-        # Check to make sure that the independent thread is a SignalThread instance
+    def __init__(self, signalConstructorType, constructorTuple):
+        if signalConstructorType == 'fromThreadPair':
+            self.independentThread = constructorTuple[0]
+            self.dependentThread = constructorTuple[1]
+            self.signalType = 'discrete'
+
+        elif signalConstructorType == 'fromSingleThread':
+            self.independentThread = constructorTuple[0]
+            self.dependentThread = constructorTuple[1]
+            self.signalType = 'discrete'
+
+        elif signalConstructorType == 'fromFunctionGenerator':
+            self.independentThread = constructorTuple[0]
+            self.dependentThread = constructorTuple[1]
+            self.signalType = 'continuous'
+
+        elif signalConstructorType == 'fromSignalSequence':
+            self.independentThread = constructorTuple[0]
+            self.dependentThread = constructorTuple[1]
+            self.signalType = 'discrete'
+
+    @classmethod
+    def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread) -> Signal:
+        # Check independentThread type
         if isinstance(independentThread, SignalThread):
-            self.independentThread = independentThread
+            independentThread = independentThread
+        else:
+            raise SignalTypeError('Independent signal thread must be of type "SignalThread".')
+
+        # Check dependentThread type
+        if not isinstance(dependentThread, SignalThread):
+            dependentThread = dependentThread
         else:
             raise SignalTypeError('Dependent signal thread must be of type "SignalThread".')
 
-        # Check to make sure that the dependent thread is a SignalThread instance
-        if isinstance(dependentThread, SignalThread):
-            self.dependentThread = dependentThread
+        # Check that the independent and dependent signal threads are the same length
+        if independentThread.length != dependentThread.length:
+            raise SignalValueError('Independent and Dependent signal threads must be the same length.')
+            
+        # Check that the dependent signal thread is strictly increasing (avoids problems with calculus operations)
+        if not dependentThread.isIncreasing:
+            raise SignalValueError('Dependent signal thread must be strictly increasing.')
 
-            # Check that the independent and dependent signal threads are the same length
-            if self.independentThread.length != self.dependentThread.length:
-                raise SignalValueError('Independent and Dependent signal threads must be the same length.')
-                
-            # Check that the dependent signal thread is strictly increasing (avoids problems with calculus operations)
-            if not dependentThread.isIncreasing:
-                raise SignalValueError('Dependent signal thread must be strictly increasing.')
+        # Prepare constructor call
+        signalConstructorType = 'fromThreadPair'
+        return cls(signalConstructorType, (independentThread, dependentThread))
 
-        elif dependentThread == 'indices':
-            # \TODO implement this warning with message pipe once message pipe is converted to static functions.
-            print('Signal has been linearly parameterized along its indices.')
-            self.dependentThread = np.arange(0, self.independentThread.length, step=1)
-
+    @classmethod
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str) -> Signal:
+        # Check independentThread type
+        if isinstance(independentThread, SignalThread):
+            independentThread = independentThread
         else:
-            raise SignalTypeError('Dependent thread must be of type "SignalThread" or an automatic constructor method specified as type "str".')
+            raise SignalTypeError('Independent signal thread must be of type "SignalThread".')
+
+        # Parameterize the independent thread
+        if parameterizationMethod == 'indices':
+            dependentThread = SignalThread(np.arange(0, independentThread.length, step=1))
+
+        # Prepare constructor call
+        signalConstructorType = 'fromSingleThread'
+        return cls(signalConstructorType, (independentThread, dependentThread))
+
+    @classmethod
+    def fromFunctionGenerator(cls, functionGenerator:FunctionSequence, parameterizationMethod=Tuple[str, Any]) -> Signal:
+        # Check function generator type
+        if not isinstance(functionGenerator, FunctionSequence):
+            raise SignalTypeError('functionGenerator must be of type "FunctionGenerator".')
+
+        # Create a discrete version of the function
+        if parameterizationMethod[0] == 'fromSignalThread':
+            dependentThread = parameterizationMethod[1]
+            independentThread = functionGenerator.toSignalThread(dependentThread)
+        else:
+            raise SignalTypeError('Unrecognized parameterization method.')
+
+        # Prepare constructor call
+        signalConstructorType = 'fromFunctionGenerator'
+        return cls(signalConstructorType, (independentThread, dependentThread))
+
+    @classmethod
+    def fromSignalSequence(cls, signalList:List[Signal]):
+        independentThread = np.hstack(signal.independentThread.data for signal in signalList)
+        dependentThread = np.hstack(signal.dependentThread.data for signal in signalList)
+
+        # Prepare constructor call
+        signalConstructorType = 'fromSignalSequence'
+        return cls(signalConstructorType, (independentThread, dependentThread))
 
     def generateInterpolationFunction(self, interpolationMethod, methodParameters):
         if interpolationMethod == 'legendre':
@@ -78,3 +139,7 @@ class Signal:
 
         else:
             raise SignalValueError('No interpolation method: %s' % interpolationMethod)
+
+class SignalBundle:
+    def __init__(self, signalList):
+        self.signalList = signalList
