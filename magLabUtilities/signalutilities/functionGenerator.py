@@ -39,13 +39,13 @@ from magLabUtilities.exceptions.exceptions import SignalValueError
 class FunctionSequence:
     def __init__(self, t0=np.float64(0.0)):
         self.functionList = []
-        self.tTotal = t0
+        self.duration = t0
 
-    def appendFunction(self, function:Callable[[SignalThread], Signal], functionT0:np.float64, functionT1:np.float64):
-        self.functionList.append((function, functionT0, functionT1, functionT1-functionT0))
-        self.tTotal += abs(functionT1 - functionT0)
+    def appendFunction(self, function:Callable[[SignalThread], Signal], functionT0:np.float64, functionT1:np.float64) -> None:
+        self.functionList.append((function, functionT0, functionT1-functionT0))
+        self.duration += abs(functionT1 - functionT0)
 
-    def evaluate(self, tThread:SignalThread):
+    def evaluate(self, tThread:SignalThread) -> Signal:
         t = np.float64(0.0)
         if not tThread.isIncreasing:
             raise SignalValueError('tThread must be increasing.')
@@ -54,14 +54,15 @@ class FunctionSequence:
         functionRegion = None
         for function in self.functionList:
             if function is self.functionList[-1]:
-                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data <= t+function[3]))
+                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data <= t+function[2]))[0]
             else:
-                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data < t+function[3]))
-            t += function[3]
+                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data < t+function[2]))[0]
+            t += function[2]
 
-            signalList.append(function(0)(tThread[functionRegion[0], functionRegion[-1]], tThread[functionRegion[0]]))
+            regionTThread = SignalThread(tThread.data[functionRegion[0]:functionRegion[-1]+1] - tThread.data[functionRegion[0]] + function[1])
+            signalList.append(function[0](regionTThread))
 
-        return Signal.fromSignalSequence(signalList)
+        return Signal.fromSignalSequence(signalList, tThread)
 
 class Line:
     def __init__(self, x0:np.float64, x1:np.float64, t0:np.float64, t1:np.float64, enforceTBounds=False):
@@ -71,14 +72,17 @@ class Line:
         self.t1 = t1
         self.enforceTBounds = enforceTBounds
 
-    def evaluate(self, tThread:SignalThread, tOffset:np.float64) -> Signal:
+        self.slope = (self.x1-self.x0) / (self.t1-self.t0)
+        self.xIntercept = self.x0 - self.slope * self.t0
+
+    def evaluate(self, tThread:SignalThread) -> Signal:
         if self.enforceTBounds:
-            if not (np.all(tThread.data - tOffset >= self.t0) and np.all(tThread.data - tOffset <= self.t1)):
+            if not (np.all(tThread.data >= self.t0) and np.all(tThread.data <= self.t1)):
                 raise SignalValueError('Cannot evaluate function outside bounds.')
         if not tThread.isIncreasing:
             raise SignalValueError('tThread must be increasing.')
 
-        return Signal.fromThreadPair((tThread.data - tOffset) * (self.x1-self.x0) / (self.t1-self.t0) - self.x0, tThread)
+        return Signal.fromThreadPair(SignalThread(tThread.data * self.slope + self.xIntercept), tThread)
 
 class SeriesApproximation:
     pass

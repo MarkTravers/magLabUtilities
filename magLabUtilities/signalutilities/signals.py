@@ -2,16 +2,12 @@
 import numpy as np
 from typing import Tuple, Any, List
 from magLabUtilities.exceptions.exceptions import SignalTypeError, SignalValueError
-from magLabUtilities.signalutilities.functionGenerator import FunctionSequence
 
 class SignalThread:
     def __init__(self, data):
         # Convert various input datatypes to a Numpy array
         if isinstance(data, np.ndarray):
             self.data = data
-
-        elif isinstance(data, Signal):
-            self.data = data.data
 
         elif isinstance(data, list):
             self.data = np.asarray(self.data)
@@ -66,7 +62,7 @@ class Signal:
             self.signalType = 'discrete'
 
     @classmethod
-    def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread) -> Signal:
+    def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -74,7 +70,7 @@ class Signal:
             raise SignalTypeError('Independent signal thread must be of type "SignalThread".')
 
         # Check dependentThread type
-        if not isinstance(dependentThread, SignalThread):
+        if isinstance(dependentThread, SignalThread):
             dependentThread = dependentThread
         else:
             raise SignalTypeError('Dependent signal thread must be of type "SignalThread".')
@@ -92,7 +88,7 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str) -> Signal:
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -108,8 +104,9 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromFunctionGenerator(cls, functionGenerator:FunctionSequence, parameterizationMethod=Tuple[str, Any]) -> Signal:
+    def fromFunctionGenerator(cls, functionGenerator, parameterizationMethod=Tuple[str, Any]):
         # Check function generator type
+        from magLabUtilities.signalutilities.functionGenerator import FunctionSequence
         if not isinstance(functionGenerator, FunctionSequence):
             raise SignalTypeError('functionGenerator must be of type "FunctionGenerator".')
 
@@ -125,13 +122,12 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSignalSequence(cls, signalList:List[Signal]):
-        independentThread = np.hstack(signal.independentThread.data for signal in signalList)
-        dependentThread = np.hstack(signal.dependentThread.data for signal in signalList)
+    def fromSignalSequence(cls, signalList, sequenceDependantThread):
+        independentThread = SignalThread(np.hstack((signal.independentThread.data for signal in signalList)))
 
         # Prepare constructor call
         signalConstructorType = 'fromSignalSequence'
-        return cls(signalConstructorType, (independentThread, dependentThread))
+        return cls(signalConstructorType, (independentThread, sequenceDependantThread))
 
     def generateInterpolationFunction(self, interpolationMethod, methodParameters):
         if interpolationMethod == 'legendre':

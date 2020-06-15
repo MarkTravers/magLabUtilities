@@ -10,6 +10,13 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run triangleWaveGen.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/triangleWaveGen.py",
+            "console": "integratedTerminal"
         }
     ]
 }
