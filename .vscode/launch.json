@@ -17,6 +17,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/triangleWaveGen.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run parabolaWaveGen.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/parabolaWaveGen.py",
+            "console": "integratedTerminal"
         }
     ]
 }

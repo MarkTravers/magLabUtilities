@@ -42,6 +42,9 @@ class FunctionSequence:
         self.duration = t0
 
     def appendFunction(self, function:Callable[[SignalThread], Signal], functionT0:np.float64, functionT1:np.float64) -> None:
+        if functionT0 > functionT1:
+            raise SignalValueError('functionT0 must be less than or equal to functionT1')
+
         self.functionList.append((function, functionT0, functionT1-functionT0))
         self.duration += abs(functionT1 - functionT0)
 
@@ -65,7 +68,7 @@ class FunctionSequence:
         return Signal.fromSignalSequence(signalList, tThread)
 
 class Line:
-    def __init__(self, x0:np.float64, x1:np.float64, t0:np.float64, t1:np.float64, enforceTBounds=False):
+    def __init__(self, x0:np.float64, x1:np.float64, t0:np.float64, t1:np.float64, enforceTBounds=True):
         self.x0 = x0
         self.x1 = x1
         self.t0 = t0
@@ -83,6 +86,39 @@ class Line:
             raise SignalValueError('tThread must be increasing.')
 
         return Signal.fromThreadPair(SignalThread(tThread.data * self.slope + self.xIntercept), tThread)
+
+class Parabola:
+    def __init__(self, tMaxDx:np.float64, tVertex:np.float64, xMaxDx:np.float64, xVertex:np.float64, power:np.float64, enforceTBounds=True):
+        self.tMaxDx = np.float64(tMaxDx)
+        self.tVertex = np.float64(tVertex)
+        self.xMaxDx = np.float64(xMaxDx)
+        self.xVertex = np.float64(xVertex)
+        self.power = np.float64(power)
+        self.enforceTBounds = enforceTBounds
+
+    def evaluate(self, tThread:SignalThread) -> Signal:
+        if not tThread.isIncreasing:
+            raise SignalValueError('tThread must be increasing.')
+
+        if self.tVertex > self.tMaxDx:
+            inRegion = np.where(tThread.data >= self.tVertex)
+            outRegion = np.where(tThread.data < self.tVertex)
+
+            inThread = -(self.xMaxDx-self.xVertex) * np.power((-tThread.data[inRegion]+self.tVertex)/(self.tMaxDx-self.tVertex), self.power) + self.tVertex
+            outThread = (self.xMaxDx-self.xVertex) * np.power((tThread.data[outRegion]-self.tVertex)/(self.tMaxDx-self.tVertex), self.power) + self.tVertex
+
+            xThread = np.hstack((outThread, inThread))
+
+        elif self.tVertex < self.tMaxDx:
+            inRegion = np.where(tThread.data <= self.tVertex)
+            outRegion = np.where(tThread.data > self.tVertex)
+
+            inThread = -(self.xMaxDx-self.xVertex) * np.power((tThread.data[inRegion]-self.tVertex)/(self.tMaxDx-self.tVertex), self.power) + self.tVertex
+            outThread = (self.xMaxDx-self.xVertex) * np.power((-tThread.data[outRegion]+self.tVertex)/(self.tMaxDx-self.tVertex), self.power) + self.tVertex
+
+            xThread = np.hstack((inThread, outThread))
+
+        return Signal.fromThreadPair(SignalThread(xThread), tThread)
 
 class SeriesApproximation:
     pass
