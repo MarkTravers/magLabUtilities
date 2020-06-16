@@ -25,11 +25,11 @@
 #           (phaseShift)    - shifts the sine wave (default is 0.0)
 #
 # \todo
-#   change functions to input a dependent SignalThread and output a Signal
 #
 # \revised
 #   Mark Travers 4/22/2020      - Original construction
 #   Stephen Gedney 4/27/2020    - Added Linear function
+#   Mark Travers 6/16/2020      - Implemented function generators with Signals. Vectorized Parabola
 
 import numpy as np
 from typing import Tuple, Callable
@@ -120,75 +120,14 @@ class Parabola:
 
         return Signal.fromThreadPair(SignalThread(xThread), tThread)
 
+class Sinusoid:
+    def __init__(self, amplitude:np.float64, angularPeriod:np.float64, phaseShift:np.float64):
+        self.amplitude = amplitude
+        self.angularPeriod = angularPeriod
+        self.phaseShift = phaseShift
+
+    def evaluate(self, tThread:SignalThread) -> Signal:
+        return SignalThread(self.amplitude * np.sin(tThread.data - self.phaseShift))
+
 class SeriesApproximation:
     pass
-
-# class FunctionGenerator:
-#     def __init__(self):
-#         self.signalList = []
-
-#     def appendSignal(self, signalPiece):
-#         if len(self.signalList) == 0:
-#             self.signalList.append(signalPiece)
-#         else:
-#             self.signalList.append(signalPiece[1:])
-
-#     def compileSignal(self):
-#         return np.hstack(self.signalList)
-
-#     def parabola(self, xMaxStep, xMinStep, x0, x1, power, numPoints):
-#         def mapToParabola(x, exponent):
-#             if (xMaxStep > xMinStep and xMinStep > x) or (xMaxStep < xMinStep and xMinStep < x):
-#                 x = xMinStep + (xMinStep - x)
-#                 return -(xMaxStep - xMinStep) * np.power((x-xMinStep)/(xMaxStep-xMinStep), exponent) + xMinStep
-#             else:
-#                 return (xMaxStep - xMinStep) * np.power((x-xMinStep)/(xMaxStep-xMinStep), exponent) + xMinStep
-
-#         t0 = mapToParabola(x0, 1.0/power)
-#         t1 = mapToParabola(x1, 1.0/power)
-#         tArray = np.linspace(t0, t1, num=numPoints)
-#         mapArrayToParabola = np.vectorize(mapToParabola)
-#         xArray = mapArrayToParabola(tArray, power)
-#         return xArray
-
-#     def sinusoid(self, amplitude, thetaStep, angularPeriod, numCycles, phaseShift=0.0):
-#         numPoints = (angularPeriod * numCycles) / thetaStep
-#         tArray = np.linspace(0.0, numPoints*thetaStep, numPoints+1)
-#         return amplitude * np.sin(tArray-phaseShift)
-
-#     def linear(self, xStep, xStart, xStop):
-#         numPoints = np.floor(np.absolute((xStop - xStart) / xStep))
-#         npts = numPoints.astype(np.int)+1
-#         xArray = np.linspace(xStart, xStop, npts)
-#         return xArray
-
-# if __name__ == '__main__':
-#     # Create a signal generator
-#     sigGen = FunctionGenerator()
-
-#     # ################ Minor loop example with parabolic point distribution #################
-#     # # Virgin curve
-#     # sigGen.appendSignal(sigGen.parabola(xMaxStep=10000.0, xMinStep=0.0, x0=0.0, x1=10000.0, power=1.5, numPoints=101))
-#     # # Positive reversal
-#     # sigGen.appendSignal(sigGen.parabola(xMaxStep=10000.0, xMinStep=-820.0, x0=10000.0, x1=-10000.0, power=1.5, numPoints=201))
-#     # # Negative reversal
-#     # sigGen.appendSignal(sigGen.parabola(xMaxStep=-10000.0, xMinStep=820.0, x0=-10000.0, x1=10000.0, power=1.5, numPoints=201))
-
-#     ################# Minor loop example with sinusoidal point distribution #################
-#     # sigGen.appendSignal(sigGen.sinusoid(amplitude=10000.0, thetaStep=np.pi/100, angularPeriod=2.0*np.pi, numCycles=1.25, phaseShift=0.0)) 
-
-#     # combine signals, excluding shared intermediary endpoints
-#     signal = sigGen.compileSignal()
-
-#     # calculate and display largest and smallest step sizes
-#     stepSizes = np.abs(signal[:-1] - signal[1:])
-#     print('Largest step size: %f' % np.amax(stepSizes))
-#     print('Smallest step size: %f' % np.amin(stepSizes))
-#     print('Mean step size: %f' % np.mean(stepSizes))
-#     print('Standard deviation of step size: %f' % np.std(stepSizes))
-
-#     # output to waveform file
-#     with open('./waveform.txt', 'w') as waveformFile:
-#         waveformFile.write('%s\n1.0\n' % signal.shape[0])
-#         for i in range(signal.shape[0]):
-#             waveformFile.write('%f\n' % signal[i])
