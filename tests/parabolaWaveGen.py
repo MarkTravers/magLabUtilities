@@ -2,7 +2,7 @@
 
 import numpy as np
 from magLabUtilities.signalutilities.signals import Signal, SignalThread
-from magLabUtilities.signalutilities.functionGenerator import FunctionSequence, Parabola
+from magLabUtilities.signalutilities.canonical1d import FunctionSequence, Parabola
 
 if __name__=='__main__':
     up = Parabola(tMaxDx=2.0, tVertex=0.0, xMaxDx=4.0, xVertex=0.0, power=2.0)

@@ -2,7 +2,7 @@
 
 import numpy as np
 from magLabUtilities.signalutilities.signals import Signal, SignalThread
-from magLabUtilities.signalutilities.functionGenerator import FunctionSequence, Line
+from magLabUtilities.signalutilities.canonical1d import FunctionSequence, Line
 
 if __name__=='__main__':
     up1 = Line(x0=0.0, x1=1.0, t0=0.0, t1=1.0, enforceTBounds=False)
