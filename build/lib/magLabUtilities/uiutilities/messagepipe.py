@@ -1,5 +1,7 @@
 #!python3
 
+#\TODO implement message pipe as a static class to allow calls without instantiation
+
 class MP:
     def __init__(self, initMessage, messageTypes):
         # Stores the names (as strings) of each active message type

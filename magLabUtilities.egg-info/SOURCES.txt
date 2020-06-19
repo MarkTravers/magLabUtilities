@@ -19,6 +19,8 @@ magLabUtilities/optimizers/gradientDescent.py
 magLabUtilities/optimizers/particleSwarm.py
 magLabUtilities/signalutilities/__init__.py
 magLabUtilities/signalutilities/calculus.py
+magLabUtilities/signalutilities/canonical1d.py
+magLabUtilities/signalutilities/hysteresis.py
 magLabUtilities/signalutilities/interpolation.py
 magLabUtilities/signalutilities/signals.py
 magLabUtilities/uiutilities/__init__.py

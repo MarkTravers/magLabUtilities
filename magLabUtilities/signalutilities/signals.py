@@ -40,29 +40,37 @@ class SignalThread:
         return self.data.size    
 
 class Signal:
-    def __init__(self, signalConstructorType, constructorTuple):
+    def __init__(self, signalConstructorType:str, constructorTuple:Tuple, tDiscontinuities:np.ndarray):
         if signalConstructorType == 'fromThreadPair':
+            # constructorTuple = [SignalThread, SignalThread]
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
             self.signalType = 'discrete'
+            self.tDiscontinuities = np.asarray(tDiscontinuities)
 
         elif signalConstructorType == 'fromSingleThread':
+            # constructorTuple = [SignalThread, SignalThread]
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
             self.signalType = 'discrete'
+            self.tDiscontinuities = np.asarray(tDiscontinuities)
 
         elif signalConstructorType == 'fromFunctionGenerator':
+            # constructorTuple = [SignalThread, SignalThread]
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
             self.signalType = 'continuous'
+            self.tDiscontinuities = np.asarray(tDiscontinuities)
 
         elif signalConstructorType == 'fromSignalSequence':
+            # constructorTuple = [SignalThread, SignalThread]
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
             self.signalType = 'discrete'
+            self.tDiscontinuities = np.asarray(tDiscontinuities)
 
     @classmethod
-    def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread):
+    def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread, tDiscontinuities:np.ndarray):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -85,10 +93,10 @@ class Signal:
 
         # Prepare constructor call
         signalConstructorType = 'fromThreadPair'
-        return cls(signalConstructorType, (independentThread, dependentThread))
+        return cls(signalConstructorType, (independentThread, dependentThread), tDiscontinuities)
 
     @classmethod
-    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str):
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tDiscontinuities:np.ndarray):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -101,7 +109,7 @@ class Signal:
 
         # Prepare constructor call
         signalConstructorType = 'fromSingleThread'
-        return cls(signalConstructorType, (independentThread, dependentThread))
+        return cls(signalConstructorType, (independentThread, dependentThread), tDiscontinuities)
 
     @classmethod
     def fromFunctionGenerator(cls, functionGenerator, parameterizationMethod=Tuple[str, Any]):
