@@ -24,6 +24,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/parabolaWaveGen.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run readHysteresisFromExcel.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/fileReaderTests/readHysteresisFromExcel.py",
+            "console": "integratedTerminal"
         }
     ]
 }
