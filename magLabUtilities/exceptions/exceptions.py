@@ -8,3 +8,6 @@ class SignalTypeError(TypeError):
 
 class SignalValueError(ValueError):
     pass
+
+class FileIOValueError(ValueError):
+    pass
