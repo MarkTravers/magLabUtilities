@@ -140,6 +140,13 @@ class Signal:
         else:
             raise SignalValueError('No interpolation method: %s' % interpolationMethod)
 
+    def sample(self, tThread:SignalThread, interpolationMethod:str):
+        if interpolationMethod == 'nearestPoint':
+            from magLabUtilities.signalutilities.interpolation import nearestPoint
+            return nearestPoint(self, tThread)
+        else:
+            raise SignalValueError('No interpolation method ''%s''.' % interpolationMethod)
+
 class SignalBundle:
     def __init__(self):
         self.signals = {}
