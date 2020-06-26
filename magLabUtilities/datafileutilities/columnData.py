@@ -7,9 +7,7 @@ from typing import List
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
 from magLabUtilities.exceptions.exceptions import FileIOValueError
 
-class importFromXlsx:
-    @staticmethod
-    def columnHeadersFromFile(fp:str, sheetName:str, headerRow:int, excelDataColumns:str, excelTColumn:str=None, dataColumnNames:List[str]=None) -> SignalBundle:
+def importFromXlsx(fp:str, sheetName:str, headerRow:int, excelDataColumns:str, excelTColumn:str=None, dataColumnNames:List[str]=None) -> SignalBundle:
         dataColumns = pd.read_excel(fp, sheet_name=sheetName, header=headerRow-1, usecols=excelDataColumns, dtype=np.float64)
 
         if not excelTColumn.isalpha():

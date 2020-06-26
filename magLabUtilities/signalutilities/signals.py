@@ -1,6 +1,6 @@
 #!python3
 import numpy as np
-from typing import Tuple, Any, List
+from typing import List, Tuple, Any
 from magLabUtilities.exceptions.exceptions import SignalTypeError, SignalValueError
 
 class SignalThread:
@@ -151,8 +151,20 @@ class SignalBundle:
     def __init__(self):
         self.signals = {}
 
-    def addSignal(self, name:str, signal:Signal):
+    def addSignal(self, name:str, signal:Signal, overrideCompilation=False) -> None:
         if name in self.signals.keys():
             raise SignalValueError('Cannot add Signal (%s) to bundle. "%s" already exists.')
 
         self.signals[name] = signal
+
+    def sample(self, tThread:SignalThread, signalInterpList:List[Tuple[str, str]]) -> np.ndarray:
+        sampledSignalList = []
+        for signalInterp in signalInterpList:
+            if len(signalInterp) != 2:
+                raise SignalValueError('Must provide Signal name and interpolation method.')
+            if signalInterp[0] not in self.signals.keys():
+                raise SignalValueError('Signal ''%s'' does not exist in this bundle.')
+
+            sampledSignalList.append(self.signals[signalInterp[0]].sample(tThread, signalInterp[1]))
+
+        return np.vstack((tThread.data, np.vstack((sampledSignal.independentThread.data for sampledSignal in sampledSignalList))))
