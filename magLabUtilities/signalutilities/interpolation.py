@@ -7,7 +7,7 @@ from magLabUtilities.signalutilities.signals import SignalThread, Signal
 
 def nearestPoint(interpSignal:Signal, tThread:SignalThread) -> Signal:
     tDistanceMatrix = np.vstack([interpSignal.dependentThread.data]*tThread.length)
-    tDistanceMatrix = np.abs(tDistanceMatrix - np.transpose([tThread.data]))
+    np.abs(tDistanceMatrix - np.transpose([tThread.data]), out=tDistanceMatrix)
     interpIndices = np.argmin(tDistanceMatrix, axis=1)
 
     independentThread = SignalThread(interpSignal.independentThread.data[interpIndices])

@@ -1,10 +1,10 @@
 #!python3
 import numpy as np
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 from magLabUtilities.exceptions.exceptions import SignalTypeError, SignalValueError
 
 class SignalThread:
-    def __init__(self, data):
+    def __init__(self, data:Union[np.ndarray, list]):
         # Convert various input datatypes to a Numpy array
         if isinstance(data, np.ndarray):
             self.data = data

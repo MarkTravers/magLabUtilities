@@ -11,3 +11,6 @@ class SignalValueError(ValueError):
 
 class FileIOValueError(ValueError):
     pass
+
+class CostValueError(ValueError):
+    pass
