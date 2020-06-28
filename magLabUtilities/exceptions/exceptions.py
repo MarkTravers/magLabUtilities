@@ -14,3 +14,9 @@ class FileIOValueError(ValueError):
 
 class CostValueError(ValueError):
     pass
+
+class UITypeError(TypeError):
+    pass
+
+class UIValueError(ValueError):
+    pass
