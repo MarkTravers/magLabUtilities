@@ -1,6 +1,7 @@
 #!python3
+from __future__ import annotations
 import numpy as np
-from typing import List, Tuple, Any, Union
+from typing import List, Tuple, Any, Union, Callable
 from magLabUtilities.exceptions.exceptions import SignalTypeError, SignalValueError
 
 class SignalThread:
@@ -18,6 +19,10 @@ class SignalThread:
         # Ensure that the Numpy array is 1-dimensional
         if len(data.shape) > 1:
             raise SignalTypeError('Cannot create signal from multi-dimensional array.')
+
+    @classmethod
+    def fromThreadSequence(cls, threadList):
+        return cls(np.hstack([thread.data for thread in threadList]))
 
     @property
     def isIncreasing(self):
@@ -109,10 +114,9 @@ class Signal:
 
     @classmethod
     def fromFunctionGenerator(cls, functionGenerator, parameterizationMethod=Tuple[str, Any]):
-        # Check function generator type
-        from magLabUtilities.signalutilities.canonical1d import FunctionSequence
-        if not isinstance(functionGenerator, FunctionSequence):
-            raise SignalTypeError('functionGenerator must be of type "FunctionGenerator".')
+        # # Check function generator type
+        # if not isinstance(functionGenerator, SignalSequence):
+        #     raise SignalTypeError('functionGenerator must be of type "FunctionGenerator".')
 
         # Create a discrete version of the function
         if parameterizationMethod[0] == 'fromSignalThread':
@@ -126,12 +130,13 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSignalSequence(cls, signalList, sequenceDependantThread):
-        independentThread = SignalThread(np.hstack((signal.independentThread.data for signal in signalList)))
+    def fromSignalSequence(cls, signalList:List[Signal]) -> Signal:
+        independentThread = SignalThread.fromThreadSequence(signal.independentThread for signal in signalList)
+        dependentThread = SignalThread.fromThreadSequence(signal.dependentThread for signal in signalList)
 
         # Prepare constructor call
         signalConstructorType = 'fromSignalSequence'
-        return cls(signalConstructorType, (independentThread, sequenceDependantThread))
+        return cls(signalConstructorType, (independentThread, dependentThread))
 
     def generateInterpolationFunction(self, interpolationMethod, methodParameters):
         if interpolationMethod == 'legendre':
@@ -151,6 +156,22 @@ class SignalBundle:
     def __init__(self):
         self.signals = {}
 
+    @classmethod
+    def fromSignalBundleSequence(cls, signalBundleList:List[SignalBundle]) -> SignalBundle:
+        signalDict = {}
+        for signalBundle in signalBundleList:
+            for signalKey in signalBundle.signals.keys():
+                if signalKey in signalDict:
+                    signalDict[signalKey].append(signalBundle.signals[signalKey])
+                else:
+                    signalDict[signalKey] = [signalBundle.signals[signalKey]]
+
+        compiledBundle = cls()
+        for signalKey in signalDict.keys():
+            compiledBundle.addSignal(signalKey, Signal.fromSignalSequence(signalDict[signalKey]))
+
+        return compiledBundle
+
     def addSignal(self, name:str, signal:Signal, overrideCompilation=False) -> None:
         if name in self.signals.keys():
             raise SignalValueError('Cannot add Signal (%s) to bundle. "%s" already exists.')
@@ -168,3 +189,35 @@ class SignalBundle:
             sampledSignalList.append(self.signals[signalInterp[0]].sample(tThread, signalInterp[1]))
 
         return np.vstack((tThread.data, np.vstack((sampledSignal.independentThread.data for sampledSignal in sampledSignalList))))
+
+#\todo - SignalSequence tThread is jenky...
+class SignalSequence:
+    def __init__(self, t0:np.float64=np.float64(0.0)):
+        self.functionList = []
+        self.duration = t0
+
+    def appendFunction(self, function:Callable[[SignalThread], Signal], functionT0:np.float64, functionT1:np.float64) -> None:
+        if functionT0 > functionT1:
+            raise SignalValueError('functionT0 must be less than or equal to functionT1')
+
+        self.functionList.append((function, functionT0, functionT1-functionT0))
+        self.duration += abs(functionT1 - functionT0)
+
+    # def evaluate(self, tThread:SignalThread) -> Signal:
+    #     t = np.float64(0.0)
+    #     if not tThread.isIncreasing:
+    #         raise SignalValueError('tThread must be increasing.')
+
+    #     signalList = []
+    #     functionRegion = None
+    #     for function in self.functionList:
+    #         if function is self.functionList[-1]:
+    #             functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data <= t+function[2]))[0]
+    #         else:
+    #             functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data < t+function[2]))[0]
+    #         t += function[2]
+
+    #         regionTThread = SignalThread(tThread.data[functionRegion[0]:functionRegion[-1]+1] - tThread.data[functionRegion[0]] + function[1])
+    #         signalList.append(function[0](regionTThread))
+
+    #     return Signal.fromSignalSequence(signalList, tThread)

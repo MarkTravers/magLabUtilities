@@ -56,7 +56,7 @@ class XExpQA:
         self.xcPow = np.float64(xcPow)
         self.mRev = np.float64(mRev)
 
-    def evaluate(self, mSignal:Signal) -> SignalBundle:
+    def evaluate(self, mSignal:Signal) -> HysteresisSignalBundle:
         if self.mRev == 0.0:
             mMMr = np.abs(mSignal.independentThread.data)
             hCTerm = self.hCoercive
@@ -72,7 +72,7 @@ class XExpQA:
         exponent = mMMr / (self.xInit * (hCTerm + (self.hAnh*self.mSat*mMMr)/(xc*mSatMM)))
         xSignal = Signal.fromThreadPair(SignalThread(xRev * np.exp(exponent)), mSignal.dependentThread)
 
-        xOfMBundle = SignalBundle()
+        xOfMBundle = HysteresisSignalBundle()
         xOfMBundle.addSignal('M', mSignal)
         xOfMBundle.addSignal('X', xSignal)
 

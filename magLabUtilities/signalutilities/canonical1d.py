@@ -36,37 +36,6 @@ from typing import Tuple, Callable
 from magLabUtilities.signalutilities.signals import SignalThread, Signal
 from magLabUtilities.exceptions.exceptions import SignalValueError
 
-class FunctionSequence:
-    def __init__(self, t0=np.float64(0.0)):
-        self.functionList = []
-        self.duration = t0
-
-    def appendFunction(self, function:Callable[[SignalThread], Signal], functionT0:np.float64, functionT1:np.float64) -> None:
-        if functionT0 > functionT1:
-            raise SignalValueError('functionT0 must be less than or equal to functionT1')
-
-        self.functionList.append((function, functionT0, functionT1-functionT0))
-        self.duration += abs(functionT1 - functionT0)
-
-    def evaluate(self, tThread:SignalThread) -> Signal:
-        t = np.float64(0.0)
-        if not tThread.isIncreasing:
-            raise SignalValueError('tThread must be increasing.')
-
-        signalList = []
-        functionRegion = None
-        for function in self.functionList:
-            if function is self.functionList[-1]:
-                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data <= t+function[2]))[0]
-            else:
-                functionRegion = np.where(np.logical_and(tThread.data >= t, tThread.data < t+function[2]))[0]
-            t += function[2]
-
-            regionTThread = SignalThread(tThread.data[functionRegion[0]:functionRegion[-1]+1] - tThread.data[functionRegion[0]] + function[1])
-            signalList.append(function[0](regionTThread))
-
-        return Signal.fromSignalSequence(signalList, tThread)
-
 class Line:
     def __init__(self, x0:np.float64, x1:np.float64, t0:np.float64, t1:np.float64, enforceTBounds=True):
         self.x0 = x0

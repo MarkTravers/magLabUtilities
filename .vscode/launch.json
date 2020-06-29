@@ -59,6 +59,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/workflowTests/dataModelCalcCost.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run XExp.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/XExp.py",
+            "console": "integratedTerminal"
         }
     ]
 }

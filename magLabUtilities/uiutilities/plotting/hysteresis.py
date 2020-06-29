@@ -52,7 +52,7 @@ class XofMPlotter:
         figPosition = [300, 300, 700, 600]
         self.matEng.set(self.matEng.gcf(), 'position', matlab.double(figPosition))
         self.matEng.subplot('111')
-        self.matEng.sgtitle('\chi(M)')
+        self.matEng.sgtitle('\\chi(M)')
 
         for hysteresisBundle in hysteresisBundleList:
             self.addPlot(*hysteresisBundle)
@@ -67,7 +67,7 @@ class XofMPlotter:
         plotX = matlab.double(hysteresisBundle.signals['M'].independentThread.data.tolist())
         plotY = matlab.double(hysteresisBundle.signals['X'].independentThread.data.tolist())
 
-        self.matEng.plot(plotX, plotY, 'DisplayName', plotName)
+        self.matEng.semilogy(plotX, plotY, 'DisplayName', plotName)
         self.matEng.hold('on', nargout=0)
         self.matEng.grid('on', nargout=0)
         self.matEng.xlabel('Magnetization [A/m]')
