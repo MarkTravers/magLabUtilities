@@ -1,15 +1,18 @@
-#!python3
+#!python
 
 import numpy as np
 from magLabUtilities.datafileutilities.timeDomain import importFromXlsx
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
 from magLabUtilities.signalutilities.hysteresis import XExpQA, HysteresisSignalBundle
 from magLabUtilities.uiutilities.plotting.hysteresis import MofHPlotter, XofMPlotter, MofHXofMPlotter
+from magLabUtilities.signalutilities.calculus import finiteDiffDerivative, integralIndexQuadrature
 
 if __name__=='__main__':
+    # Import data
     fp = './tests/workflowTests/datafiles/test21kLoop.xlsx'
     refBundle = HysteresisSignalBundle(importFromXlsx(fp, '21k', 2, 'C,D', dataColumnNames=['H','M']))
 
+    # Generate a Xexp which matches the datafile
     mMatrix = refBundle.signals['M'].independentThread.data
     tMatrix = refBundle.signals['M'].dependentThread.data
     pMAmpIndex = np.argmax(mMatrix[0:int(mMatrix.shape[0]/2)])
@@ -30,12 +33,27 @@ if __name__=='__main__':
 
     testBundle = HysteresisSignalBundle.fromSignalBundleSequence([virginX, pRevX, nRevX])
 
+    # Take the derivative of the data
+    xThread = SignalThread(finiteDiffDerivative( \
+        fNum=refBundle.signals['M'].independentThread.data, \
+        fDenom=refBundle.signals['H'].independentThread.data, \
+        windowRadius=100, \
+        discontinuousPoints=[pMAmpIndex, nMAmpIndex], \
+        differenceMode='centralDifference'))
+    refBundle.addSignal('X', Signal.fromThreadPair(xThread, refBundle.signals['M'].dependentThread))
+
+    # Take the integral of the model
+    hThread = SignalThread(integralIndexQuadrature(1.0 / testBundle.signals['X'].independentThread.data, testBundle.signals['M'].independentThread.data))
+    testBundle.addSignal('H', Signal.fromThreadPair(hThread, testBundle.signals['M'].dependentThread))
+
     plotter = MofHXofMPlotter()
     plotter.addMofHPlot(refBundle, 'Data')
+    plotter.addMofHPlot(testBundle, 'Model')
+    plotter.addXofMPlot(refBundle, 'Data')
     plotter.addXofMPlot(testBundle, 'Model')
     # plotter.addXofMPlot(virginX, 'Virgin')
     # plotter.addXofMPlot(pRevX, 'Positive Reversal')
     # plotter.addXofMPlot(nRevX, 'Negative Reversal')
 
-    input('Press Return to exit...')
+    # input('Press Return to exit...')
     print('done')

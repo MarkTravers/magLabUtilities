@@ -1,6 +1,8 @@
 #!python3
 
 import numpy as np
+from typing import List
+from magLabUtilities.signalutilities.signals import SignalThread, Signal
 from internal.terminalInterface import printMsg
 
 def differentialDerivative(fNum, fDenom, windowRadius, discontinuousPoints, terminalMode='verbose'):
@@ -26,7 +28,7 @@ def differentialDerivative(fNum, fDenom, windowRadius, discontinuousPoints, term
         printMsg('Index: %d    F: %f    Left Index: %d    F(left): %f    Right Index: %d    F(right):    %f    dF: %f' % (index, fNum[index], windowIndices[0], fNum[windowIndices[0]], windowIndices[1], fNum[windowIndices[1]], dF[index]), terminalMode)
     return dF
 
-def finiteDiffDerivative(fNum, fDenom, windowRadius, discontinuousPoints, differenceMode):
+def finiteDiffDerivative(fNum:np.ndarray, fDenom:np.ndarray, windowRadius:np.int, discontinuousPoints:List[np.int], differenceMode:str) -> np.ndarray:
     fNum = np.array(fNum, dtype=np.float32)
     fDenom = np.array(fDenom, dtype=np.float32)
     discontinuousPoints = discontinuousPoints + [0, fNum.size-1]
@@ -57,6 +59,10 @@ def finiteDiffDerivative(fNum, fDenom, windowRadius, discontinuousPoints, differ
                 dF.append((fNum[index] - fNum[windowIndices[0]]) / (fDenom[index] - fDenom[windowIndices[0]]))
         # print ('Index: %d    F: %e    Left Index: %d    F(left): %e    Right Index: %d    F(right):    %e    dF: %e' % (index, fNum[index], windowIndices[0], fNum[windowIndices[0]], windowIndices[1], fNum[windowIndices[1]], dF[index]))
     return np.array(dF, dtype=np.float32)
+
+def integralIndexQuadrature(independentThread:np.ndarray, dependentThread:np.ndarray):
+    dT = np.ediff1d(dependentThread, to_begin=dependentThread[0])
+    return np.cumsum(independentThread.data * dT)
 
 # integral(data, a, b, quadratureMode=['dataPoints', 'quadrature'], params)
 

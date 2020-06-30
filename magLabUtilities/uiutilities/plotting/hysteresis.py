@@ -18,27 +18,32 @@ class MofHPlotter:
         figPosition = [300, 300, 700, 600]
         self.matEng.set(self.matEng.gcf(), 'position', matlab.double(figPosition))
         self.matEng.subplot('111')
-        self.matEng.sgtitle('M(H)')
 
         for hysteresisBundle in hysteresisBundleList:
             self.addPlot(*hysteresisBundle)
 
     def addPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
-        if not isinstance(hysteresisBundle, HysteresisSignalBundle):
+        self.plotMofH(self.matEng, hysteresisBundle, plotName)
+
+    @staticmethod
+    def plotMofH(matlabEngine:matlab.engine.matlabengine.MatlabEngine, mhBundle:HysteresisSignalBundle, plotName:str):
+        if not isinstance(mhBundle, HysteresisSignalBundle):
             raise UITypeError('Invalid argument for addPlot()')
         
-        if not hysteresisBundle.mhComplete:
+        if not mhBundle.mhComplete:
             raise UIValueError('hysteresisBundle is not mh complete.')
 
-        plotX = matlab.double(hysteresisBundle.signals['H'].independentThread.data.tolist())
-        plotY = matlab.double(hysteresisBundle.signals['M'].independentThread.data.tolist())
+        plotX = matlab.double(mhBundle.signals['H'].independentThread.data.tolist())
+        plotY = matlab.double(mhBundle.signals['M'].independentThread.data.tolist())
 
-        self.matEng.plot(plotX, plotY, 'DisplayName', plotName)
-        self.matEng.hold('on', nargout=0)
-        self.matEng.grid('on', nargout=0)
-        self.matEng.xlabel('Total Field [A/m]')
-        self.matEng.ylabel('Magnetization [A/m]')
-        self.matEng.legend('location', 'northwest')
+        matlabEngine.plot(plotX, plotY, 'DisplayName', plotName)
+        matlabEngine.hold('on', nargout=0)
+        matlabEngine.grid('on', nargout=0)
+        matlabEngine.title('M(H)')
+        matlabEngine.xlabel('Total Field [A/m]')
+        matlabEngine.ylabel('Magnetization [A/m]')
+        matlabEngine.legend('location', 'southeast')
+        # matlabEngine.hold('off', nargout=0)
 
 class XofMPlotter:
     def __init__(self, hysteresisBundleList:List[Tuple[HysteresisSignalBundle, str]]=[]):
@@ -49,30 +54,50 @@ class XofMPlotter:
 
         self.matEng = matlab.engine.start_matlab()
         self.fig = self.matEng.figure()
-        figPosition = [300, 300, 700, 600]
+        figPosition = [300, 300, 600, 600]
         self.matEng.set(self.matEng.gcf(), 'position', matlab.double(figPosition))
         self.matEng.subplot('111')
-        self.matEng.sgtitle('\\chi(M)')
 
         for hysteresisBundle in hysteresisBundleList:
             self.addPlot(*hysteresisBundle)
 
     def addPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
-        if not isinstance(hysteresisBundle, HysteresisSignalBundle):
+        self.plotXofM(self.matEng, hysteresisBundle, plotName)
+
+    @staticmethod
+    def plotXofM(matlabEngine:matlab.engine.matlabengine.MatlabEngine, xmBundle:HysteresisSignalBundle, plotName:str):
+        if not isinstance(xmBundle, HysteresisSignalBundle):
             raise UITypeError('Invalid argument for addPlot()')
         
-        if not hysteresisBundle.xmComplete:
+        if not xmBundle.xmComplete:
             raise UIValueError('hysteresisBundle is not xm complete.')
 
-        plotX = matlab.double(hysteresisBundle.signals['M'].independentThread.data.tolist())
-        plotY = matlab.double(hysteresisBundle.signals['X'].independentThread.data.tolist())
+        plotX = matlab.double(xmBundle.signals['M'].independentThread.data.tolist())
+        plotY = matlab.double(xmBundle.signals['X'].independentThread.data.tolist())
 
-        self.matEng.semilogy(plotX, plotY, 'DisplayName', plotName)
-        self.matEng.hold('on', nargout=0)
-        self.matEng.grid('on', nargout=0)
-        self.matEng.xlabel('Magnetization [A/m]')
-        self.matEng.ylabel('Susceptibility')
-        self.matEng.legend('location', 'south')
+        matlabEngine.semilogy(plotX, plotY, 'DisplayName', plotName)
+        matlabEngine.hold('on', nargout=0)
+        matlabEngine.grid('on', nargout=0)
+        matlabEngine.title('\\chi(M)')
+        matlabEngine.xlabel('Magnetization [A/m]')
+        matlabEngine.ylabel('Susceptibility')
+        matlabEngine.legend('location', 'south')
+        # matlabEngine.hold('off', nargout=0)
+
+class MofHXofMPlotter:
+    def __init__(self):
+        self.matEng = matlab.engine.start_matlab()
+        self.fig = self.matEng.figure()
+        figPosition = [100, 300, 1500, 600]
+        self.matEng.set(self.matEng.gcf(), 'position', matlab.double(figPosition))
+    
+    def addMofHPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
+        self.matEng.subplot('121')
+        MofHPlotter.plotMofH(self.matEng, hysteresisBundle, plotName)
+
+    def addXofMPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
+        self.matEng.subplot('122')
+        XofMPlotter.plotXofM(self.matEng, hysteresisBundle, plotName)
 
 # This section uses matplotlib to plot things.
 # \todo - Autodetect presence of Matlab on system. Either that or make the user choose matplotlib or matlab.

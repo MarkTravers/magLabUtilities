@@ -66,6 +66,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/XExp.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run tempCalculus.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/tempCalculus.py",
+            "console": "integratedTerminal"
         }
     ]
 }
