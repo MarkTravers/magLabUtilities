@@ -1,7 +1,7 @@
 #!python3
 
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple, List, Any
 import matlab.engine
 from magLabUtilities.signalutilities.hysteresis import HysteresisSignalBundle
 from magLabUtilities.exceptions.exceptions import UITypeError, UIValueError
@@ -26,7 +26,7 @@ class MofHPlotter:
         self.plotMofH(self.matEng, hysteresisBundle, plotName)
 
     @staticmethod
-    def plotMofH(matlabEngine:matlab.engine.matlabengine.MatlabEngine, mhBundle:HysteresisSignalBundle, plotName:str):
+    def plotMofH(matlabEngine:matlab.engine.matlabengine.MatlabEngine, mhBundle:HysteresisSignalBundle, plotName:str) -> None:
         if not isinstance(mhBundle, HysteresisSignalBundle):
             raise UITypeError('Invalid argument for addPlot()')
         
@@ -42,7 +42,7 @@ class MofHPlotter:
         matlabEngine.title('M(H)')
         matlabEngine.xlabel('Total Field [A/m]')
         matlabEngine.ylabel('Magnetization [A/m]')
-        matlabEngine.legend('location', 'southeast')
+        # matlabEngine.legend('location', 'southeast')
         # matlabEngine.hold('off', nargout=0)
 
 class XofMPlotter:
@@ -76,12 +76,13 @@ class XofMPlotter:
         plotY = matlab.double(xmBundle.signals['X'].independentThread.data.tolist())
 
         matlabEngine.semilogy(plotX, plotY, 'DisplayName', plotName)
+        # matlabEngine.plot(plotX, plotY, 'DisplayName', plotName)
         matlabEngine.hold('on', nargout=0)
         matlabEngine.grid('on', nargout=0)
         matlabEngine.title('\\chi(M)')
         matlabEngine.xlabel('Magnetization [A/m]')
         matlabEngine.ylabel('Susceptibility')
-        matlabEngine.legend('location', 'south')
+        # matlabEngine.legend('location', 'south')
         # matlabEngine.hold('off', nargout=0)
 
 class MofHXofMPlotter:

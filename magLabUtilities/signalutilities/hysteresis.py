@@ -47,7 +47,7 @@ class HysteresisSignalBundle(SignalBundle):
             return False
 
 class XExpQA:
-    def __init__(self, xInit:np.float64, hCoercive:np.float64, mSat:np.float64, hCoop:np.float64, hAnh:np.float64, xcPow:np.float64, mRev:np.float64):
+    def __init__(self, xInit:np.float64, hCoercive:np.float64, mSat:np.float64, hCoop:np.float64, hAnh:np.float64, xcPow:np.float64, mRev:np.float64, virginMTolerance:np.float64):
         self.xInit = np.float64(xInit)
         self.hCoercive = np.float64(hCoercive)
         self.mSat = np.float64(mSat)
@@ -55,21 +55,59 @@ class XExpQA:
         self.hAnh = np.float64(hAnh)
         self.xcPow = np.float64(xcPow)
         self.mRev = np.float64(mRev)
+        self.virginMTolerance = np.float64(virginMTolerance)
 
     def evaluate(self, mSignal:Signal) -> HysteresisSignalBundle:
-        if self.mRev == 0.0:
-            mMMr = np.abs(mSignal.independentThread.data)
+        if abs(self.mRev) <= self.virginMTolerance:
+            absDM = np.abs(mSignal.independentThread.data)
             hCTerm = self.hCoercive
         else:
-            mMMr = np.abs(mSignal.independentThread.data - self.mRev)
+            absDM = np.abs(mSignal.independentThread.data - self.mRev)
             hCTerm = self.hCoop
 
-        xr = 1.0 - np.power(mSignal.independentThread.data / self.mSat, 2)
-        xc = 1.0 - np.power(mSignal.independentThread.data / self.mSat, self.xcPow)
+        xr = 1.0 - np.power(np.abs(mSignal.independentThread.data / self.mSat), 2)
+        xc = 1.0 - np.power(np.abs(mSignal.independentThread.data / self.mSat), self.xcPow)
         xRev = self.xInit * xr
         mSatMM = np.power(self.mSat, 2) - np.power(mSignal.independentThread.data, 2)
 
-        exponent = mMMr / (self.xInit * (hCTerm + (self.hAnh*self.mSat*mMMr)/(xc*mSatMM)))
+        exponent = absDM / (self.xInit * (hCTerm + (self.hAnh*self.mSat*absDM)/(xc*mSatMM)))
+        xSignal = Signal.fromThreadPair(SignalThread(xRev * np.exp(exponent)), mSignal.dependentThread)
+
+        xOfMBundle = HysteresisSignalBundle()
+        xOfMBundle.addSignal('M', mSignal)
+        xOfMBundle.addSignal('X', xSignal)
+
+        return xOfMBundle
+
+class XExpGedney060820:
+    def __init__(self, xInit:np.float64, hCoercive:np.float64, mSat:np.float64, hCoop:np.float64, hAnh:np.float64, xcPow:np.float64, mRev:np.float64, virginMTolerance:np.float64):
+        self.xInit = np.float64(xInit)
+        self.hCoercive = np.float64(hCoercive)
+        self.mSat = np.float64(mSat)
+        self.hCoop = np.float64(hCoop)
+        self.hAnh = np.float64(hAnh)
+        self.xcPow = np.float64(xcPow)
+        self.mRev = np.float64(mRev)
+        self.virginMTolerance = np.float64(virginMTolerance)
+
+    def evaluate(self, mSignal:Signal) -> HysteresisSignalBundle:
+        if abs(self.mRev) <= self.virginMTolerance:
+            hCTerm = self.hCoercive / 2.0
+        else:
+            hCTerm = self.hCoop
+
+        absDM = np.abs(mSignal.independentThread.data - self.mRev)
+        xr = 1.0 - np.power(np.abs(mSignal.independentThread.data / self.mSat), 2)
+        xc = 1.0 - np.power(np.abs(mSignal.independentThread.data / self.mSat), self.xcPow)
+        xRev = self.xInit * xr
+
+        mSatMM = mSignal.independentThread.data
+        gtIndices = np.where(mSignal.independentThread.data - self.mRev > 0)
+        mSatMM[gtIndices] = self.mSat - mSignal.independentThread.data[gtIndices]
+        ltIndices = np.where(mSignal.independentThread.data - self.mRev <= 0)
+        mSatMM[ltIndices] = self.mSat + mSignal.independentThread.data[ltIndices]
+
+        exponent = absDM / (self.xInit * (hCTerm/xc + (self.hAnh*absDM)/mSatMM))
         xSignal = Signal.fromThreadPair(SignalThread(xRev * np.exp(exponent)), mSignal.dependentThread)
 
         xOfMBundle = HysteresisSignalBundle()

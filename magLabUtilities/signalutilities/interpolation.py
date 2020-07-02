@@ -15,7 +15,7 @@ def nearestPoint(interpSignal:Signal, tThread:SignalThread) -> Signal:
 
     return Signal.fromThreadPair(independentThread, dependentThread)
 
-def legendre(data, integrationWindowSize, stepSize, legendreOrder, terminalMode='quiet'):
+def legendre(data:np.ndarray, integrationWindowSize:int, stepSize:int, legendreOrder:int, terminalMode='quiet') -> np.ndarray:
     # Setup and input validation
     data = np.array(data)
     if len(data.shape) > 1:

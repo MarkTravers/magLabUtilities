@@ -73,6 +73,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/tempCalculus.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run fig.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/workflowTests/fit.py",
+            "console": "integratedTerminal"
         }
     ]
 }

@@ -188,7 +188,7 @@ class SignalBundle:
 
             sampledSignalList.append(self.signals[signalInterp[0]].sample(tThread, signalInterp[1]))
 
-        return np.vstack((tThread.data, np.vstack((sampledSignal.independentThread.data for sampledSignal in sampledSignalList))))
+        return np.vstack((tThread.data, np.vstack([sampledSignal.independentThread.data for sampledSignal in sampledSignalList])))
 
 #\todo - SignalSequence tThread is jenky...
 class SignalSequence:
