@@ -101,10 +101,10 @@ class XExpGedney060820:
         xc = 1.0 - np.power(np.abs(mSignal.independentThread.data / self.mSat), self.xcPow)
         xRev = self.xInit * xr
 
-        mSatMM = mSignal.independentThread.data
-        gtIndices = np.where(mSignal.independentThread.data - self.mRev > 0)
+        mSatMM = np.zeros_like(mSignal.independentThread.data, np.float64)
+        gtIndices = np.where(mSignal.independentThread.data - self.mRev >= 0)[0]
         mSatMM[gtIndices] = self.mSat - mSignal.independentThread.data[gtIndices]
-        ltIndices = np.where(mSignal.independentThread.data - self.mRev <= 0)
+        ltIndices = np.where(mSignal.independentThread.data - self.mRev < 0)
         mSatMM[ltIndices] = self.mSat + mSignal.independentThread.data[ltIndices]
 
         exponent = absDM / (self.xInit * (hCTerm/xc + (self.hAnh*absDM)/mSatMM))
