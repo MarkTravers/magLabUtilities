@@ -14,7 +14,8 @@ def rmsNdNorm(refMatrix:np.ndarray, testMatrix:np.ndarray, tWeightMatrix:np.ndar
         raise CostValueError('tWeightMatrix must be sampled at the same times as refMatrix and testMatrix.')
 
     if normalizeDataByDimRange:
-        dimRanges = np.transpose([np.ptp(refMatrix, axis=1) + np.ptp(testMatrix, axis=1)]) * 0.5
+        # dimRanges = np.transpose([np.ptp(refMatrix, axis=1) + np.ptp(testMatrix, axis=1)]) * 0.5
+        dimRanges = np.transpose([np.ptp(refMatrix, axis=1)])
         np.divide(refMatrix[1:,:], dimRanges[1:], out=refMatrix[1:,:])
         np.divide(refMatrix[2:,:], dimRanges[2:], out=refMatrix[2:,:])
         np.divide(testMatrix[1:,:], dimRanges[1:], out=testMatrix[1:,:])

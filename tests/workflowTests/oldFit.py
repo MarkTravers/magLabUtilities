@@ -16,7 +16,7 @@ import json
 class CostEvaluator:
     def __init__(self, dataFP, tuneHistoryFP):
         self.fp = dataFP
-        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '8k', 2, 'C,D', dataColumnNames=['H','M']))
+        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '21k', 2, 'C,D', dataColumnNames=['H','M']))
         self.refBundle.signals['M'].independentThread.data = legendre(self.refBundle.signals['M'].independentThread.data, integrationWindowSize=100, stepSize=25, legendreOrder=2)
         self.refBundle.signals['M'].dependentThread.data = legendre(self.refBundle.signals['M'].dependentThread.data, integrationWindowSize=100, stepSize=25, legendreOrder=2)
         self.refBundle.signals['H'].independentThread.data = legendre(self.refBundle.signals['H'].independentThread.data, integrationWindowSize=100, stepSize=25, legendreOrder=2)
@@ -88,51 +88,29 @@ class CostEvaluator:
         print('Switching to node: %s' % str(newCenterGridNode.coordList))
 
 if __name__ == '__main__':
-    parameterList = [
-                        {   'name':'hCoercive',
-                            'initialValue':610.0,
-                            'stepSize':10.0,
-                            # 'testGridLocalIndices':[0]
-                            'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'xInit',
-                            'initialValue':73.0,
-                            'stepSize':0.25,
-                            'testGridLocalIndices':[0]
-                            # 'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'mSat',
-                            'initialValue':1.66e6,
-                            'stepSize':0.002e6,
-                            'testGridLocalIndices':[0]
-                            # 'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'hCoop',
-                            'initialValue':814.0,
-                            'stepSize':25.0,
-                            # 'testGridLocalIndices':[0]
-                            'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'hAnh',
-                            'initialValue':4310.0,
-                            'stepSize':25.0,
-                            # 'testGridLocalIndices':[0]
-                            'testGridLocalIndices':[-1,0,1]
-                        },
-                        {
-                            'name':'xcPow',
-                            'initialValue':2.0,
-                            'stepSize':1.0,
-                            'testGridLocalIndices':[0]
-                            # 'testGridLocalIndices':[-1,0,1]
-                        }
-                    ]
+    parameterDefs = {
+                        'hCoercive': {'initialValue':605.0,    'limits':[0.0,10000.0]},
+                        'xInit':     {'initialValue':61.25,    'limits':[60.0,90.0]},
+                        'mSat':      {'initialValue':1.65e6,   'limits':[1.0e6,2.0e6]},
+                        'hCoop':     {'initialValue':1190.0,   'limits':[100.0,10000.0]},
+                        'hAnh':      {'initialValue':5200.0,   'limits':[100.0,10000.0]},
+                        'xcPow':     {'initialValue':2.0,      'limits':[0.0,10.0]}
+                    }
+
+    gradientDescentConfig = {
+                                'hCoercive': {'localNeighborSteps':[-15.0, 0.0, 15.0]},
+                                'xInit':     {'localNeighborSteps':[-0.25, 0.0, 0.25]},
+                                'mSat':      {'localNeighborSteps':[0.001e6, 0.0, 0.001e6]},
+                                'hCoop':     {'localNeighborSteps':[-15.0, 0.0, 15.0]},
+                                'hAnh':      {'localNeighborSteps':[-15.0, 0.0, 15.0]},
+                                'xcPow':     {'localNeighborSteps':[-0.1, 0.0, 0.1]}
+                            }
 
     fp = './tests/workflowTests/datafiles/testLoops.xlsx'
     tuneHistoryFP = './tests/workflowTests/datafiles/tuneHistory00.txt'
 
     costEvaluator = CostEvaluator(fp, tuneHistoryFP)
     tuner = GradientDescent(parameterList, costEvaluator.runCostFunction, costEvaluator.gradientStep)
-    tuner.tune(numIterations=1, maxThreads=8)
+    tuner.tune(numIterations=np.infty, maxThreads=8)
 
     print('done')
