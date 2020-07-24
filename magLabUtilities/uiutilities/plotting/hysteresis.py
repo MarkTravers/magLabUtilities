@@ -85,6 +85,27 @@ class XofMPlotter:
         # matlabEngine.legend('location', 'south')
         # matlabEngine.hold('off', nargout=0)
 
+    @staticmethod
+    def plotXRevofM(matlabEngine:matlab.engine.matlabengine.MatlabEngine, xRevmBundle:HysteresisSignalBundle, plotName:str):
+        if not isinstance(xRevmBundle, HysteresisSignalBundle):
+            raise UITypeError('Invalid argument for addPlot()')
+        
+        if not xRevmBundle.xRevmComplete:
+            raise UIValueError('hysteresisBundle is not xRevm complete.')
+
+        plotX = matlab.double(xRevmBundle.signals['M'].independentThread.data.tolist())
+        plotY = matlab.double(xRevmBundle.signals['Xrev'].independentThread.data.tolist())
+
+        matlabEngine.semilogy(plotX, plotY, 'DisplayName', plotName)
+        # matlabEngine.plot(plotX, plotY, 'DisplayName', plotName)
+        matlabEngine.hold('on', nargout=0)
+        matlabEngine.grid('on', nargout=0)
+        matlabEngine.title('\\chi(M)')
+        matlabEngine.xlabel('Magnetization [A/m]')
+        matlabEngine.ylabel('Susceptibility')
+        # matlabEngine.legend('location', 'south')
+        # matlabEngine.hold('off', nargout=0)
+
 class MofHXofMPlotter:
     def __init__(self):
         self.matEng = matlab.engine.start_matlab()
@@ -99,6 +120,10 @@ class MofHXofMPlotter:
     def addXofMPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
         self.matEng.subplot('122')
         XofMPlotter.plotXofM(self.matEng, hysteresisBundle, plotName)
+
+    def addXRevofMPlot(self, hysteresisBundle:HysteresisSignalBundle, plotName:str):
+        self.matEng.subplot('122')
+        XofMPlotter.plotXRevofM(self.matEng, hysteresisBundle, plotName)
 
 # This section uses matplotlib to plot things.
 # \todo - Autodetect presence of Matlab on system. Either that or make the user choose matplotlib or matlab.

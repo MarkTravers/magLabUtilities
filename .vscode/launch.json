@@ -75,10 +75,31 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run fig.py (Integrated Terminal)",
+            "name": "Run fit.py (Integrated Terminal)",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/tests/workflowTests/fit.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run fit_mRemModel.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/workflowTests/fit_mRemModel.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run fit_XExpMremGedney071620.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/workflowTests/fit_XExpMremGedney071620.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run fit_XExpGedney071720.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/workflowTests/fit_XExpGedney071720.py",
             "console": "integratedTerminal"
         }
     ]
