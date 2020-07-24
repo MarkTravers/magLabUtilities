@@ -16,11 +16,11 @@ import json
 class CostEvaluator:
     def __init__(self, dataFP, tuneHistoryFP):
         self.fp = dataFP
-        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '21k', 2, 'C,D', dataColumnNames=['H','M']))
-        self.refBundle.signals['M'].independentThread.data = legendre(self.refBundle.signals['M'].independentThread.data, integrationWindowSize=100, stepSize=4, legendreOrder=2)
-        self.refBundle.signals['M'].dependentThread.data = legendre(self.refBundle.signals['M'].dependentThread.data, integrationWindowSize=100, stepSize=4, legendreOrder=2)
-        self.refBundle.signals['H'].independentThread.data = legendre(self.refBundle.signals['H'].independentThread.data, integrationWindowSize=100, stepSize=4, legendreOrder=2)
-        self.refBundle.signals['H'].dependentThread.data = legendre(self.refBundle.signals['H'].dependentThread.data, integrationWindowSize=100, stepSize=4, legendreOrder=2)
+        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '22.7k', 1, 'A,B', dataColumnNames=['H','M']))
+        self.refBundle.signals['M'].independentThread.data = legendre(self.refBundle.signals['M'].independentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
+        self.refBundle.signals['M'].dependentThread.data = legendre(self.refBundle.signals['M'].dependentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
+        self.refBundle.signals['H'].independentThread.data = legendre(self.refBundle.signals['H'].independentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
+        self.refBundle.signals['H'].dependentThread.data = legendre(self.refBundle.signals['H'].dependentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
 
         self.pMAmpIndex = np.argmax(self.refBundle.signals['M'].independentThread.data[0:int(self.refBundle.signals['M'].independentThread.data.shape[0]/2)])
         self.nMAmpIndex = np.argmin(self.refBundle.signals['M'].independentThread.data)
@@ -76,7 +76,7 @@ class CostEvaluator:
 
         refMatrix = self.refBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M','nearestPoint'),('H','nearestPoint')])
         testMatrix = testBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M','nearestPoint'),('H','nearestPoint')])
-        tWeightMatrix = np.vstack([self.refBundle.signals['H'].dependentThread.data, np.hstack([np.zeros(32), np.ones(self.refBundle.signals['H'].dependentThread.length-32)])])
+        tWeightMatrix = np.vstack([self.refBundle.signals['H'].dependentThread.data, np.hstack([np.ones(1258), np.ones(6290-1258)])])
         gridNode.loss = rmsNdNorm(refMatrix, testMatrix, tWeightMatrix)
         gridNode.data = testBundle
         return gridNode
@@ -110,10 +110,10 @@ if __name__ == '__main__':
                             # 'testGridLocalIndices':[-1,0,1]
                         },
                         {   'name':'hCoercive',
-                            'initialValue':700.0,
+                            'initialValue':650.0,
                             'stepSize':25.0,
-                            # 'testGridLocalIndices':[0]
-                            'testGridLocalIndices':[-1,0,1]
+                            'testGridLocalIndices':[0]
+                            # 'testGridLocalIndices':[-1,0,1]
                         },
                         {   'name':'hNuc',
                             'initialValue':11974.0,
@@ -128,28 +128,28 @@ if __name__ == '__main__':
                             # 'testGridLocalIndices':[-1,0,1]
                         },
                         {   'name':'mSat',
-                            'initialValue':1.66e6,
-                            'stepSize':0.002e6,
+                            'initialValue':1.67e6,
+                            'stepSize':0.01e6,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         },
                         {
                             'name':'hCoop',
-                            'initialValue':3130.0,
-                            'stepSize':25.0,
+                            'initialValue':5000.0,
+                            'stepSize':100.0,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         },
                         {
                             'name':'hAnh',
-                            'initialValue':4300.0,
-                            'stepSize':25.0,
+                            'initialValue':4575.0,
+                            'stepSize':75.0,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         }
                     ]
 
-    fp = './tests/workflowTests/datafiles/netzaData.xlsx'
+    fp = './tests/workflowTests/datafiles/CarlData.xlsx'
     tuneHistoryFP = './tests/workflowTests/datafiles/tuneHistory00.txt'
 
     costEvaluator = CostEvaluator(fp, tuneHistoryFP)
