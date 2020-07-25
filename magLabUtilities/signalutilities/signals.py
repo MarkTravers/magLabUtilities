@@ -97,7 +97,7 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str):
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tStart):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -107,6 +107,10 @@ class Signal:
         # Parameterize the independent thread
         if parameterizationMethod == 'indices':
             dependentThread = SignalThread(np.arange(0, independentThread.length, step=1))
+        elif parameterizationMethod == 'arcLength':
+            dependentThread = SignalThread(Signal.arcLength1D(independentThread.data))
+        else:
+            raise SignalValueError('Parameterization method ''%s'' is not recognized.')
 
         # Prepare constructor call
         signalConstructorType = 'fromSingleThread'
@@ -137,6 +141,14 @@ class Signal:
         # Prepare constructor call
         signalConstructorType = 'fromSignalSequence'
         return cls(signalConstructorType, (independentThread, dependentThread))
+
+    @staticmethod
+    def arcLength1D(data:np.ndarray, prependArcLength:np.float64=0.0, totalArcLength:np.float64=None) -> np.ndarray:
+        arcLength = np.cumsum(np.abs(np.ediff1d(data, to_begin=0.0)))
+        if totalArcLength is not None:
+            np.multiply(arcLength, totalArcLength / arcLength[-1], out=arcLength)
+        np.add(arcLength, prependArcLength, out=arcLength)
+        return arcLength
 
     def generateInterpolationFunction(self, interpolationMethod, methodParameters):
         if interpolationMethod == 'legendre':
@@ -172,7 +184,31 @@ class SignalBundle:
 
         return compiledBundle
 
-    def addSignal(self, name:str, signal:Signal, overrideCompilation=False) -> None:
+    @classmethod
+    def fromSignalBundleArray(cls, signalBundleArray:np.ndarray, signalNames:List[str]) -> SignalBundle:
+        if not (len(signalNames) == signalBundleArray.shape[0]-1):
+            raise SignalValueError('Number of signal names must match the number of indpendent lines in signalBundleArray.')
+        newSignalBundle = cls()
+        for i, signalName in enumerate(signalNames):
+            newSignalBundle.addSignal(signalName, Signal.fromThreadPair(SignalThread(signalBundleArray[i+1,:]), SignalThread(signalBundleArray[0,:])))
+
+        return newSignalBundle
+
+    # Computes the n-dimensional arclength along a parametric path defined by one or more Signals.
+    # This function should be called using the output of SignalBundle.sample() to ensure that each
+    # independent signal is sampled at the same times.
+    @staticmethod
+    def arcLengthND(dataBundleArray:np.ndarray, prependArcLength:np.float64=0.0, totalArcLength:np.float64=None) -> np.ndarray:
+        # Calculate n-dim arc lengths and cumulative lengths
+        np.cumsum(np.linalg.norm(np.diff(dataBundleArray[1:,:], prepend=0.0, axis=1), axis=0), out=dataBundleArray[0,:])
+        # Normalize arc length by totalArcLength if given
+        if totalArcLength is not None:
+            np.multiply(dataBundleArray[0,:], totalArcLength / dataBundleArray[0:-1], out=dataBundleArray[0,:])
+        # Offset arc length by prependArcLength if given
+        np.add(dataBundleArray[0,:], prependArcLength, out=dataBundleArray[0,:])
+        return dataBundleArray
+
+    def addSignal(self, name:str, signal:Signal) -> None:
         if name in self.signals.keys():
             raise SignalValueError('Cannot add Signal (%s) to bundle. "%s" already exists.')
 
