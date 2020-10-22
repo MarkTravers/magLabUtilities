@@ -355,6 +355,8 @@ class XExpOfHGedney071720:
         self.hAnh = np.float64(abs(hAnh))
 
     def evaluate(self, hSignal:Signal, hRev:float, mRev:float, curveRegion:str) -> HysteresisSignalBundle:
+        
+
         hRev = np.float64(hRev)
         mRev = np.float64(mRev)
         curveRegion = curveRegion
@@ -367,12 +369,12 @@ class XExpOfHGedney071720:
 
         if mRev > self.mNuc:
             mRev = self.mNuc
-        elif mRev < -self.mNuc:
+        elif mRev <= -self.mNuc:
             mRev = -self.mNuc
 
         if hRev < -self.hNuc:
             hRev = -self.hNuc
-        elif hRev > self.hNuc:
+        elif hRev >= self.hNuc:
             hRev = self.hNuc
 
         for i in range(xSignal.independentThread.length):
@@ -393,7 +395,7 @@ class XExpOfHGedney071720:
                         x = 1.0
                     else:
                         x = abs(x) / abs(hRev)
-                    hCTerm = (self.hCoop - self.hCoercive) * (x**2) + self.hCoercive
+                    hCTerm = (self.hCoop - self.hCoercive) * (x**1) + self.hCoercive
 
                 exponent = absDM / (self.xInit * (hCTerm + hAnhTerm))
                 xSignal.independentThread.data[i] = xRevSignal.independentThread.data[i] * np.exp(exponent)

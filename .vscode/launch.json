@@ -101,6 +101,20 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/workflowTests/fit_XExpGedney071720.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run legendreResampling.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/legendreResampling.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run fit_XExpGedney071720_family.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/workflowTests/fit_XExpGedney071720_family.py",
+            "console": "integratedTerminal"
         }
     ]
 }

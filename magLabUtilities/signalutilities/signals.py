@@ -97,7 +97,7 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tStart):
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tStart:float):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -150,19 +150,8 @@ class Signal:
         np.add(arcLength, prependArcLength, out=arcLength)
         return arcLength
 
-    def generateInterpolationFunction(self, interpolationMethod, methodParameters):
-        if interpolationMethod == 'legendre':
-            pass
-
-        else:
-            raise SignalValueError('No interpolation method: %s' % interpolationMethod)
-
-    def sample(self, tThread:SignalThread, interpolationMethod:str):
-        if interpolationMethod == 'nearestPoint':
-            from magLabUtilities.signalutilities.interpolation import nearestPoint
-            return nearestPoint(self, tThread)
-        else:
-            raise SignalValueError('No interpolation method ''%s''.' % interpolationMethod)
+    def sample(self, tThread:SignalThread, interpolationMethod:Callable[[Signal, SignalThread], Signal]) -> Signal:
+        return interpolationMethod(self, tThread)
 
 class SignalBundle:
     def __init__(self):
@@ -200,10 +189,11 @@ class SignalBundle:
     @staticmethod
     def arcLengthND(dataBundleArray:np.ndarray, prependArcLength:np.float64=0.0, totalArcLength:np.float64=None) -> np.ndarray:
         # Calculate n-dim arc lengths and cumulative lengths
-        np.cumsum(np.linalg.norm(np.diff(dataBundleArray[1:,:], prepend=0.0, axis=1), axis=0), out=dataBundleArray[0,:])
+        np.cumsum(np.linalg.norm(np.diff(dataBundleArray[1:,:], axis=1), axis=0), out=dataBundleArray[0,1:])
+        dataBundleArray[0,0] = 0.0
         # Normalize arc length by totalArcLength if given
         if totalArcLength is not None:
-            np.multiply(dataBundleArray[0,:], totalArcLength / dataBundleArray[0:-1], out=dataBundleArray[0,:])
+            np.multiply(dataBundleArray[0,:], totalArcLength / dataBundleArray[0,-1], out=dataBundleArray[0,:])
         # Offset arc length by prependArcLength if given
         np.add(dataBundleArray[0,:], prependArcLength, out=dataBundleArray[0,:])
         return dataBundleArray
@@ -214,7 +204,7 @@ class SignalBundle:
 
         self.signals[name] = signal
 
-    def sample(self, tThread:SignalThread, signalInterpList:List[Tuple[str, str]]) -> np.ndarray:
+    def sample(self, tThread:SignalThread, signalInterpList:List[Tuple[str, Callable[[Signal, SignalThread], Signal]]]) -> np.ndarray:
         sampledSignalList = []
         for signalInterp in signalInterpList:
             if len(signalInterp) != 2:

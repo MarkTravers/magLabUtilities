@@ -3,10 +3,10 @@
 import numpy as np
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
 from magLabUtilities.datafileutilities.timeDomain import importFromXlsx
-from magLabUtilities.signalutilities.interpolation import legendre
+from magLabUtilities.signalutilities.interpolation import Legendre, nearestPoint
 from magLabUtilities.signalutilities.hysteresis import HysteresisSignalBundle, XExpOfHGedney071720
 from magLabUtilities.optimizerutilities.costFunctions import rmsNdNorm
-from magLabUtilities.optimizerutilities.testCases import GridNode
+from magLabUtilities.optimizerutilities.parameterSpaces import GridNode
 from magLabUtilities.optimizerutilities.gradientDescent import GradientDescent
 from magLabUtilities.signalutilities.calculus import finiteDiffDerivative, integralIndexQuadrature
 from magLabUtilities.uiutilities.plotting.hysteresis import MofHXofMPlotter
@@ -15,13 +15,19 @@ import json
 
 class CostEvaluator:
     def __init__(self, dataFP, tuneHistoryFP):
+        # Import data
         self.fp = dataFP
-        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '22.7k', 1, 'A,B', dataColumnNames=['H','M']))
-        self.refBundle.signals['M'].independentThread.data = legendre(self.refBundle.signals['M'].independentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
-        self.refBundle.signals['M'].dependentThread.data = legendre(self.refBundle.signals['M'].dependentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
-        self.refBundle.signals['H'].independentThread.data = legendre(self.refBundle.signals['H'].independentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
-        self.refBundle.signals['H'].dependentThread.data = legendre(self.refBundle.signals['H'].dependentThread.data, integrationWindowSize=100, stepSize=2, legendreOrder=2)
-
+        self.refBundle = HysteresisSignalBundle(importFromXlsx(self.fp, '9.4k', 1, 'A,B', dataColumnNames=['H','M']))
+        # Re-parameterize data by arc length
+        refBundleArray = np.vstack([self.refBundle.signals['H'].dependentThread.data, self.refBundle.signals['H'].independentThread.data, self.refBundle.signals['M'].independentThread.data])
+        refBundleArray = SignalBundle.arcLengthND(refBundleArray, totalArcLength=5.0)
+        self.refBundle = HysteresisSignalBundle.fromSignalBundleArray(refBundleArray, ['H', 'M'])
+        # Re-sample data for more even arc length
+        interpolator = Legendre(interpRadius=100, legendreOrder=3)
+        tThread = SignalThread(np.linspace(0.0, 5.0, 1000))
+        self.refBundle.signals['M'] = interpolator.interpolate(self.refBundle.signals['M'], tThread)
+        self.refBundle.signals['H'] = interpolator.interpolate(self.refBundle.signals['H'], tThread)
+        # Find indices of reversals
         self.pMAmpIndex = np.argmax(self.refBundle.signals['M'].independentThread.data[0:int(self.refBundle.signals['M'].independentThread.data.shape[0]/2)])
         self.nMAmpIndex = np.argmin(self.refBundle.signals['M'].independentThread.data)
 
@@ -55,28 +61,23 @@ class CostEvaluator:
         pRevH = Signal.fromThreadPair(SignalThread(self.refBundle.signals['H'].independentThread.data[self.pMAmpIndex:self.nMAmpIndex]), SignalThread(self.refBundle.signals['H'].dependentThread.data[self.pMAmpIndex:self.nMAmpIndex]))
         nRevH = Signal.fromThreadPair(SignalThread(self.refBundle.signals['H'].independentThread.data[self.nMAmpIndex:]), SignalThread(self.refBundle.signals['H'].dependentThread.data[self.nMAmpIndex:]))
         # Configure Xexp generator
-        virginGen = XExpOfHGedney071720(xInit=xInit, hCoercive=hCoercive, hNuc=hNuc, mNuc=mNuc, mSat=mSat, hCoop=hCoop, hAnh=hAnh)
-        reversalGen = XExpOfHGedney071720(xInit=xInit, hCoercive=hCoop, hNuc=hNuc, mNuc=mNuc, mSat=mSat, hCoop=0.0, hAnh=hAnh)
+        xExpGen = XExpOfHGedney071720(xInit=xInit, hCoercive=hCoercive, hNuc=hNuc, mNuc=mNuc, mSat=mSat, hCoop=hCoop, hAnh=hAnh)
         # Evaluate Xexp along loop
         hRev = np.amin(self.refBundle.signals['H'].independentThread.data)
         mRev = np.amin(self.refBundle.signals['M'].independentThread.data)
-        virginX = virginGen.evaluate(hSignal=virginH, hRev=0.0, mRev=0.0, curveRegion='virgin')
-        hRev = np.amax(self.refBundle.signals['H'].independentThread.data)
-        mRev = np.amax(self.refBundle.signals['M'].independentThread.data)
-        pRevX = reversalGen.evaluate(hSignal=pRevH, hRev=hRev, mRev=mRev, curveRegion='reversal')
-        hRev = np.amin(self.refBundle.signals['H'].independentThread.data)
-        mRev = np.amin(self.refBundle.signals['M'].independentThread.data)
-        nRevX = reversalGen.evaluate(hSignal=nRevH, hRev=hRev, mRev=mRev, curveRegion='reversal')
+        virginX = xExpGen.evaluate(hSignal=virginH, hRev=0.0, mRev=0.0, curveRegion='virgin')
+        hRev = np.amax(virginX.signals['H'].independentThread.data)
+        mRev = np.amax(virginX.signals['M'].independentThread.data)
+        pRevX = xExpGen.evaluate(hSignal=pRevH, hRev=hRev, mRev=mRev, curveRegion='reversal')
+        hRev = np.amin(pRevX.signals['H'].independentThread.data)
+        mRev = np.amin(pRevX.signals['M'].independentThread.data)
+        nRevX = xExpGen.evaluate(hSignal=nRevH, hRev=hRev, mRev=mRev, curveRegion='reversal')
         # Compile curve regions into one signalBundle
         testBundle = HysteresisSignalBundle.fromSignalBundleSequence([virginX, pRevX, nRevX])
 
-        # # Take the integral of the model
-        # hThread = SignalThread(integralIndexQuadrature(1.0 / testBundle.signals['X'].independentThread.data, testBundle.signals['M'].independentThread.data))
-        # testBundle.addSignal('H', Signal.fromThreadPair(hThread, testBundle.signals['M'].dependentThread))
-
-        refMatrix = self.refBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M','nearestPoint'),('H','nearestPoint')])
-        testMatrix = testBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M','nearestPoint'),('H','nearestPoint')])
-        tWeightMatrix = np.vstack([self.refBundle.signals['H'].dependentThread.data, np.hstack([np.ones(1258), np.ones(6290-1258)])])
+        refMatrix = self.refBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M',nearestPoint),('H',nearestPoint)])
+        testMatrix = testBundle.sample(tThread=self.refBundle.signals['H'].dependentThread, signalInterpList=[('M',nearestPoint),('H',nearestPoint)])
+        tWeightMatrix = np.vstack([self.refBundle.signals['H'].dependentThread.data, np.hstack([np.ones(200), np.ones(800)])])
         gridNode.loss = rmsNdNorm(refMatrix, testMatrix, tWeightMatrix)
         gridNode.data = testBundle
         return gridNode
@@ -84,12 +85,13 @@ class CostEvaluator:
     def gradientStep(self, newCenterGridNode):
         self.plotter.addMofHPlot(newCenterGridNode.data, 'Model')
         self.plotter.addXofMPlot(newCenterGridNode.data, 'Model')
+        self.plotter.addXRevofMPlot(newCenterGridNode.data, 'Xrev')
 
-        with open(tuneHistoryFP, 'a') as tuneHistoryFile:
-            tuneHistoryFile.write(str(datetime.fromtimestamp(datetime.timestamp(datetime.now()))) + '\n')
-            tuneHistoryFile.write(str(newCenterGridNode.coordList) + '\n')
-            tuneHistoryFile.write('Error: %s\n' % str(newCenterGridNode.loss))
-            # tuneHistoryFile.write(json.dumps(newCenterGridNode.data) + '\n')
+        # with open(tuneHistoryFP, 'a') as tuneHistoryFile:
+        #     tuneHistoryFile.write(str(datetime.fromtimestamp(datetime.timestamp(datetime.now()))) + '\n')
+        #     tuneHistoryFile.write(str(newCenterGridNode.coordList) + '\n')
+        #     tuneHistoryFile.write('Error: %s\n' % str(newCenterGridNode.loss))
+        #     tuneHistoryFile.write(json.dumps(newCenterGridNode.data) + '\n')
 
         print(newCenterGridNode.loss)
         print('Switching to node: %s' % str(newCenterGridNode.coordList))
@@ -104,53 +106,53 @@ if __name__ == '__main__':
     # hAnh = gridNode.coordList[6]
     parameterList = [
                         {   'name':'xInit',
-                            'initialValue':67.0,
-                            'stepSize':0.25,
+                            'initialValue':69.0,
+                            'stepSize':3,
                             'testGridLocalIndices':[0]
                             # 'testGridLocalIndices':[-1,0,1]
                         },
                         {   'name':'hCoercive',
-                            'initialValue':650.0,
+                            'initialValue':680.0,
                             'stepSize':25.0,
                             'testGridLocalIndices':[0]
                             # 'testGridLocalIndices':[-1,0,1]
                         },
                         {   'name':'hNuc',
                             'initialValue':11974.0,
-                            'stepSize':0.002e6,
-                            'testGridLocalIndices':[0]
-                            # 'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'mNuc',
-                            'initialValue':1.5221e6,
-                            'stepSize':0.002e6,
-                            'testGridLocalIndices':[0]
-                            # 'testGridLocalIndices':[-1,0,1]
-                        },
-                        {   'name':'mSat',
-                            'initialValue':1.67e6,
-                            'stepSize':0.01e6,
+                            'stepSize':200,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         },
+                        {   'name':'mNuc',
+                            'initialValue':1.5221e6,
+                            'stepSize':0.03e6,
+                            # 'testGridLocalIndices':[0]
+                            'testGridLocalIndices':[-1,0,1]
+                        },
+                        {   'name':'mSat',
+                            'initialValue':1.66e6,
+                            'stepSize':0.01e6,
+                            'testGridLocalIndices':[0]
+                            # 'testGridLocalIndices':[-1,0,1]
+                        },
                         {
                             'name':'hCoop',
-                            'initialValue':5000.0,
-                            'stepSize':100.0,
+                            'initialValue':660.0,
+                            'stepSize':50.0,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         },
                         {
                             'name':'hAnh',
-                            'initialValue':4575.0,
-                            'stepSize':75.0,
+                            'initialValue':4300.0,
+                            'stepSize':50.0,
                             # 'testGridLocalIndices':[0]
                             'testGridLocalIndices':[-1,0,1]
                         }
                     ]
 
     fp = './tests/workflowTests/datafiles/CarlData.xlsx'
-    tuneHistoryFP = './tests/workflowTests/datafiles/tuneHistory00.txt'
+    tuneHistoryFP = './tests/workflowTests/datafiles/tuneHistory01.txt'
 
     costEvaluator = CostEvaluator(fp, tuneHistoryFP)
     tuner = GradientDescent(parameterList, costEvaluator.runCostFunction, costEvaluator.gradientStep)

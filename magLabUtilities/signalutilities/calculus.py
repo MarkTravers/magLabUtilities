@@ -64,6 +64,15 @@ def integralIndexQuadrature(independentThread:np.ndarray, dependentThread:np.nda
     dT = np.ediff1d(dependentThread, to_begin=dependentThread[0])
     return np.cumsum(independentThread.data * dT)
 
+def integralTrapQuadrature(independentThread:SignalThread, dependentThread:SignalThread) -> Signal:
+    dT = np.ediff1d(dependentThread.data)
+    dX = np.ediff1d(independentThread.data)
+
+    outputArray = np.array(np.zeros_like(independentThread.data), dtype=np.float64)
+    outputArray[1:] = dT * independentThread.data[:-1] + 0.5 * dT * dX
+
+    return Signal.fromThreadPair(SignalThread(np.cumsum(outputArray)), dependentThread)
+
 # integral(data, a, b, quadratureMode=['dataPoints', 'quadrature'], params)
 
 # derivative(xData, yData, differentiationMode=['legendre', 'slopeControlledWindow'], singularityMode=['legendre', 'adaptiveWindow'])

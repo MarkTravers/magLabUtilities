@@ -4,7 +4,7 @@ import numpy as np
 from pathos.threading import ThreadPool
 from typing import Callable, List, Dict, Union
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
-from magLabUtilities.optimizerutilities.testCases import TestGrid, GridNode
+from magLabUtilities.optimizerutilities.parameterSpaces import TestGrid, GridNode
 
 class GradientDescent:
     def __init__(self, parameterList:List[Dict[str,Union[str, float, List[int]]]], costFunction:Callable[[GridNode], None], gradientStepFunction:Callable[[GridNode],None]):

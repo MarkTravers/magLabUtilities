@@ -3,78 +3,78 @@
 import json
 from typing import Dict, List, Tuple, Union
 
-class ParameterSpace:
-    def __init__(self, parameterDefs:Dict[str, Dict[str, Union[float, List[float]]]]):
-        self.parameterDefs = parameterDefs
-
-# class OldParameterSpace:
-#     def __init__(self, parameterDefs:List[Dict[str,Union[str, float, List[int]]]]):
+# class ParameterSpace:
+#     def __init__(self, parameterDefs:Dict[str, Dict[str, Union[float, List[float]]]]):
 #         self.parameterDefs = parameterDefs
 
-#         self.testGridIndices = []
-#         self._globalNodeDict = {}
+class TestGrid:
+    def __init__(self, parameterList:List[Dict[str,Union[str, float, List[int]]]]):
+        self.parameterList = parameterList
 
-#         self.buildLocalGridIndices([], 0)
+        self.testGridIndices = []
+        self._globalNodeDict = {}
 
-#     def getTestGridNodes(self, currentNodeIndices):
-#         testGridNodeList = []
-#         for testGridNode in self.testGridIndices:
+        self.buildLocalGridIndices([], 0)
 
-#             nodeIndexList = [testGridNode[i] + currentNodeIndices[i] for i in range(len(currentNodeIndices))]
-#             nodeIndexKey = json.dumps(nodeIndexList)
-#             if nodeIndexKey not in list(self._globalNodeDict.keys()):
-#                 self._globalNodeDict[nodeIndexKey] = GridNode(nodeIndexList, self.parameterList)
-#             testGridNodeList.append(self._globalNodeDict[nodeIndexKey])
-#         return testGridNodeList
+    def getTestGridNodes(self, currentNodeIndices):
+        testGridNodeList = []
+        for testGridNode in self.testGridIndices:
 
-#     def buildLocalGridIndices(self, indexList:List[int], parameterIndex:int) -> None:
-#         for localIndex in self.parameterList[parameterIndex]['testGridLocalIndices']:
-#             indexList.append(localIndex)
-#             if parameterIndex < len(self.parameterList) - 1:
-#                 self.buildLocalGridIndices(indexList, parameterIndex + 1)
-#             else:
-#                 self.testGridIndices.append(indexList)
-#             indexList = indexList[:parameterIndex]
+            nodeIndexList = [testGridNode[i] + currentNodeIndices[i] for i in range(len(currentNodeIndices))]
+            nodeIndexKey = json.dumps(nodeIndexList)
+            if nodeIndexKey not in list(self._globalNodeDict.keys()):
+                self._globalNodeDict[nodeIndexKey] = GridNode(nodeIndexList, self.parameterList)
+            testGridNodeList.append(self._globalNodeDict[nodeIndexKey])
+        return testGridNodeList
 
-#     @property
-#     def globalNodeDict(self):
-#         return self._globalNodeDict
+    def buildLocalGridIndices(self, indexList:List[int], parameterIndex:int) -> None:
+        for localIndex in self.parameterList[parameterIndex]['testGridLocalIndices']:
+            indexList.append(localIndex)
+            if parameterIndex < len(self.parameterList) - 1:
+                self.buildLocalGridIndices(indexList, parameterIndex + 1)
+            else:
+                self.testGridIndices.append(indexList)
+            indexList = indexList[:parameterIndex]
 
-#     @property
-#     def testGridNodeNum(self):
-#         return len(self.testGridIndices)
+    @property
+    def globalNodeDict(self):
+        return self._globalNodeDict
 
-# class GridNode:
-#     def __init__(self, indexList, parameterList):
-#         self._indexList = indexList
-#         self._coordList = []
-#         for index, parameter in enumerate(parameterList):
-#             self._coordList.append(parameter['initialValue'] + parameter['stepSize'] * float(self._indexList[index]))
-#         self._loss = None
-#         self._data = None
+    @property
+    def testGridNodeNum(self):
+        return len(self.testGridIndices)
 
-#         # self.mp.out(['GridNode'], 'Created GridNode with %s and %s' % (self._indexList, self._coordList))
+class GridNode:
+    def __init__(self, indexList, parameterList):
+        self._indexList = indexList
+        self._coordList = []
+        for index, parameter in enumerate(parameterList):
+            self._coordList.append(parameter['initialValue'] + parameter['stepSize'] * float(self._indexList[index]))
+        self._loss = None
+        self._data = None
 
-#     @property
-#     def indexList(self):
-#         return(self._indexList)
+        # self.mp.out(['GridNode'], 'Created GridNode with %s and %s' % (self._indexList, self._coordList))
 
-#     @property
-#     def coordList(self):
-#         return(self._coordList)
+    @property
+    def indexList(self):
+        return(self._indexList)
 
-#     @property
-#     def loss(self):
-#         return self._loss
+    @property
+    def coordList(self):
+        return(self._coordList)
 
-#     @loss.setter
-#     def loss(self, loss):
-#         self._loss = loss
+    @property
+    def loss(self):
+        return self._loss
 
-#     @property
-#     def data(self):
-#         return self._data
+    @loss.setter
+    def loss(self, loss):
+        self._loss = loss
 
-#     @data.setter
-#     def data(self, data):
-#         self._data = data
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
