@@ -11,13 +11,13 @@ class SignalThread:
             self.data = data
 
         elif isinstance(data, list):
-            self.data = np.asarray(self.data)
+            self.data = np.asarray(data)
 
         else:
             raise SignalTypeError('Cannot create signal from supplied data type.')
 
         # Ensure that the Numpy array is 1-dimensional
-        if len(data.shape) > 1:
+        if len(self.data.shape) > 1:
             raise SignalTypeError('Cannot create signal from multi-dimensional array.')
 
     @classmethod
@@ -187,9 +187,14 @@ class SignalBundle:
     # This function should be called using the output of SignalBundle.sample() to ensure that each
     # independent signal is sampled at the same times.
     @staticmethod
-    def arcLengthND(dataBundleArray:np.ndarray, prependArcLength:np.float64=0.0, totalArcLength:np.float64=None) -> np.ndarray:
+    def arcLengthND(dataBundleArray:np.ndarray, prependArcLength:np.float64=0.0, totalArcLength:np.float64=None, normalizeAxes=False) -> np.ndarray:
+        # Normalize and scale each independent variable to the same range (-1,1)
+        if normalizeAxes:
+            normalizedArray = np.empty((dataBundleArray.shape[0]-1, dataBundleArray.shape[1]))
+            for signalRow in range(0, dataBundleArray.shape[0]-1):
+                normalizedArray[signalRow] = np.interp(dataBundleArray[signalRow], (dataBundleArray[signalRow].min(), dataBundleArray[signalRow].max()), (-1,1))
         # Calculate n-dim arc lengths and cumulative lengths
-        np.cumsum(np.linalg.norm(np.diff(dataBundleArray[1:,:], axis=1), axis=0), out=dataBundleArray[0,1:])
+        np.cumsum(np.linalg.norm(np.diff(normalizedArray, axis=1), axis=0), out=dataBundleArray[0,1:])
         dataBundleArray[0,0] = 0.0
         # Normalize arc length by totalArcLength if given
         if totalArcLength is not None:

@@ -115,6 +115,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/workflowTests/fit_XExpGedney071720_family.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run arcLengthParameterization.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/arcLengthParameterization.py",
+            "console": "integratedTerminal"
         }
     ]
 }

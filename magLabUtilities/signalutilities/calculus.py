@@ -3,7 +3,7 @@
 import numpy as np
 from typing import List
 from magLabUtilities.signalutilities.signals import SignalThread, Signal
-from internal.terminalInterface import printMsg
+# from internal.terminalInterface import printMsg
 
 def differentialDerivative(fNum, fDenom, windowRadius, discontinuousPoints, terminalMode='verbose'):
     dF = []
@@ -25,7 +25,7 @@ def differentialDerivative(fNum, fDenom, windowRadius, discontinuousPoints, term
             windowIndices[0] = index - windowRadius
             windowIndices[1] = index + windowRadius
         dF.append((fNum[windowIndices[1]] - fNum[windowIndices[0]]) / (fDenom[windowIndices[1]] - fDenom[windowIndices[0]]))
-        printMsg('Index: %d    F: %f    Left Index: %d    F(left): %f    Right Index: %d    F(right):    %f    dF: %f' % (index, fNum[index], windowIndices[0], fNum[windowIndices[0]], windowIndices[1], fNum[windowIndices[1]], dF[index]), terminalMode)
+        # printMsg('Index: %d    F: %f    Left Index: %d    F(left): %f    Right Index: %d    F(right):    %f    dF: %f' % (index, fNum[index], windowIndices[0], fNum[windowIndices[0]], windowIndices[1], fNum[windowIndices[1]], dF[index]), terminalMode)
     return dF
 
 def finiteDiffDerivative(fNum:np.ndarray, fDenom:np.ndarray, windowRadius:np.int, discontinuousPoints:List[np.int], differenceMode:str) -> np.ndarray:
