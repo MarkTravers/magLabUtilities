@@ -32,7 +32,7 @@ if __name__ == '__main__':
     mhRawArray = mhRawBundle.sample(mhRawBundle.signals['M'].dependentThread, [('M', nearestPoint), ('H', nearestPoint)])
     mhParamBundle = SignalBundle.fromSignalBundleArray(mhRawBundle.arcLengthND(mhRawArray, totalArcLength=1.0, normalizeAxes=True), ['M', 'H'])
 
-    mhResampleArray = mhParamBundle.sample(SignalThread(np.linspace(0.0, 1.0, 30)), [('M', nearestPoint), ('H', nearestPoint)])
+    mhResampleArray = mhParamBundle.sample(SignalThread(np.linspace(0.0, 1.0, 50)), [('M', nearestPoint), ('H', nearestPoint)])
     mhResampleBundle = SignalBundle.fromSignalBundleArray(mhResampleArray, ['M', 'H'])
 
     plotter = MofHPlotter()

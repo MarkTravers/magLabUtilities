@@ -192,7 +192,7 @@ class SignalBundle:
         if normalizeAxes:
             normalizedArray = np.empty((dataBundleArray.shape[0]-1, dataBundleArray.shape[1]))
             for signalRow in range(0, dataBundleArray.shape[0]-1):
-                normalizedArray[signalRow] = np.interp(dataBundleArray[signalRow], (dataBundleArray[signalRow].min(), dataBundleArray[signalRow].max()), (-1,1))
+                normalizedArray[signalRow] = np.interp(dataBundleArray[signalRow+1], (dataBundleArray[signalRow+1].min(), dataBundleArray[signalRow+1].max()), (-1,1))
         # Calculate n-dim arc lengths and cumulative lengths
         np.cumsum(np.linalg.norm(np.diff(normalizedArray, axis=1), axis=0), out=dataBundleArray[0,1:])
         dataBundleArray[0,0] = 0.0
