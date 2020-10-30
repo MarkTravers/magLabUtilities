@@ -122,6 +122,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/arcLengthParameterization.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run canonicalOptimizerTest.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/canonicalOptimizerTest.py",
+            "console": "integratedTerminal"
         }
     ]
 }
