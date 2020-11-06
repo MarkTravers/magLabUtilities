@@ -19,36 +19,44 @@ def circle(tThread:SignalThread, xRad:np.float64=1.0, yRad:np.float64=1.0, xCen:
     return circleBundle
 
 class Cost:
-    def __init__(self, refData:SignalBundle):
-        self.refData = refData
+    def __init__(self, refBundle:SignalBundle):
+        self.refRawBundle = refBundle
+        # Sample ref bundle for re-paramterization
+        refArray = refBundle.sample(self.refRawBundle.signals['H'].dependentThread, [('H', nearestPoint), ('M', nearestPoint)])
+        # Re-parameterize ref bundle
+        self.refBundle = SignalBundle.fromSignalBundleArray(SignalBundle.arcLengthND(refArray, totalArcLength=1.0, normalizeAxes=True), ['H', 'M'])
 
     def evaluate(self, gridNode:GridNode):
-        # Collect ref bundle
-        gridNode.refData = self.refData
-
         # Generate test bundle
-        testTThread = SignalThread(np.linspace(0.0, gridNode.coordList[4], 137))
-        gridNode.testData = circle(testTThread, xRad=gridNode.coordList[0], yRad=gridNode.coordList[1], xCen=gridNode.coordList[2], yCen=gridNode.coordList[3])
-
-        # Sample ref and test bundles for re-parameterization
-        refArray = gridNode.refData.sample(gridNode.refData.signals['H'].dependentThread, [('H', nearestPoint), ('M', nearestPoint)])
-        testArray = gridNode.testData.sample(gridNode.testData.signals['H'].dependentThread, [('H', nearestPoint), ('M', nearestPoint)])
-        # Re-parameterize ref and test bundles
-        refArray = SignalBundle.arcLengthND(refArray, totalArcLength=1.0, normalizeAxes=True)
+        testTThread = SignalThread(np.linspace(0.0, gridNode.coordList[4], 101))
+        testRawBundle = circle(testTThread, xRad=gridNode.coordList[0], yRad=gridNode.coordList[1], xCen=gridNode.coordList[2], yCen=gridNode.coordList[3])
+        # Sample test bundle for re-parameterization
+        testArray = testRawBundle.sample(testRawBundle.signals['H'].dependentThread, [('H', nearestPoint), ('M', nearestPoint)])
+        # Re-parameterize test bundle
+        testBundle = SignalBundle.fromSignalBundleArray(SignalBundle.arcLengthND(testArray, totalArcLength=1.0, normalizeAxes=True), ['H', 'M'])
         # Sample ref and test bundles for error calculation
-        sampleTThread = SignalThread(np.linspace(0.0, 1.0, 10.0))
-        refArray = gridNode.refData.sample(sampleTThread, [('H', nearestPoint), ('M', nearestPoint)])
-        testArray = gridNode.testData.sample(sampleTThread, [('H', nearestPoint), ('M', nearestPoint)])
-
+        sampleTThread = SignalThread(np.linspace(0.0, 1.0, 15))
+        refArray = self.refBundle.sample(sampleTThread, [('H', nearestPoint), ('M', nearestPoint)])
+        testArray = testBundle.sample(sampleTThread, [('H', nearestPoint), ('M', nearestPoint)])
         # Calculate error
-        rmsNdNorm(refArray, testArray, normalizeDataByDimRange=True)
+        gridNode.loss = rmsNdNorm(refArray, testArray, normalizeDataByDimRange=True)
+
+        # Package data into gridNode
+        gridNode.data['testRawBundle'] = testRawBundle
+        gridNode.data['testLossBundle'] = SignalBundle.fromSignalBundleArray(testArray, ['H','M'])
+        gridNode.data['refRawBundle'] = self.refRawBundle
+        gridNode.data['refLossBundle'] = SignalBundle.fromSignalBundleArray(refArray, ['H','M'])
+        return gridNode
 
 class Plotter:
     def __init__(self):
         self.plotter = MofHPlotter()
 
     def plotGridNode(self, gridNode:GridNode):
-        self.plotter.addPlot(gridNode.testData, plotName='')
+        self.plotter.addPlot(HysteresisSignalBundle(gridNode.data['refRawBundle']), plotName='')
+        self.plotter.addPlot(HysteresisSignalBundle(gridNode.data['testRawBundle']), plotName='')
+        print(gridNode.loss)
+        print('Switching to node: %s' % str(gridNode.coordList))
 
     def plotBundle(self, signalBundle:SignalBundle, plotName=''):
         self.plotter.addPlot(signalBundle, plotName)
@@ -58,41 +66,41 @@ if __name__ == '__main__':
     plotter = Plotter()
 
     # Generate "data" circle
-    tThread = SignalThread(np.linspace(0.0, 2.0*np.pi, 100))
+    tThread = SignalThread(np.linspace(0.0, 2.0*np.pi, 101))
     dataBundle = circle(tThread, xRad=1.0, yRad=1.0, xCen=0.0, yCen=0.0)
     plotter.plotBundle(dataBundle, 'Data')
 
     # Set up optimizer
     parameterList = [
         {   'name':'xRad',
-            'initialValue':69.0,
-            'stepSize':3,
-            'testGridLocalIndices':[0]
-            # 'testGridLocalIndices':[-1,0,1]
+            'initialValue':2.0,
+            'stepSize':0.01,
+            # 'testGridLocalIndices':[0]
+            'testGridLocalIndices':[-1,0,1]
         },
         {   'name':'yRad',
-            'initialValue':69.0,
-            'stepSize':3,
-            'testGridLocalIndices':[0]
-            # 'testGridLocalIndices':[-1,0,1]
+            'initialValue':2.0,
+            'stepSize':0.01,
+            # 'testGridLocalIndices':[0]
+            'testGridLocalIndices':[-1,0,1]
         },
         {   'name':'xCen',
-            'initialValue':69.0,
-            'stepSize':3,
-            'testGridLocalIndices':[0]
-            # 'testGridLocalIndices':[-1,0,1]
+            'initialValue':1.0,
+            'stepSize':0.01,
+            # 'testGridLocalIndices':[0]
+            'testGridLocalIndices':[-1,0,1]
         },
         {   'name':'yCen',
-            'initialValue':69.0,
-            'stepSize':3,
-            'testGridLocalIndices':[0]
-            # 'testGridLocalIndices':[-1,0,1]
+            'initialValue':-1.0,
+            'stepSize':0.01,
+            # 'testGridLocalIndices':[0]
+            'testGridLocalIndices':[-1,0,1]
         },
         {   'name':'tTotal',
-            'initialValue':69.0,
-            'stepSize':3,
-            'testGridLocalIndices':[0]
-            # 'testGridLocalIndices':[-1,0,1]
+            'initialValue':1.5*np.pi,
+            'stepSize':0.01,
+            # 'testGridLocalIndices':[0]
+            'testGridLocalIndices':[-1,0,1]
         }
     ]
 

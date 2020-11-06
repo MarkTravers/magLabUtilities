@@ -52,8 +52,9 @@ class GridNode:
         for index, parameter in enumerate(parameterList):
             self._coordList.append(parameter['initialValue'] + parameter['stepSize'] * float(self._indexList[index]))
         self._loss = None
-        self._refData = None
-        self._testData = None
+        self._refPlotBundle = None
+        self._testPlotBundle = None
+        self.data = {}
 
         # self.mp.out(['GridNode'], 'Created GridNode with %s and %s' % (self._indexList, self._coordList))
 
@@ -72,19 +73,3 @@ class GridNode:
     @loss.setter
     def loss(self, loss):
         self._loss = loss
-
-    @property
-    def refData(self):
-        return self._refData
-
-    @refData.setter
-    def refData(self, data):
-        self._refData = data
-
-    @property
-    def testData(self):
-        return self._testData
-
-    @testData.setter
-    def testData(self, data):
-        self._testdata = data
