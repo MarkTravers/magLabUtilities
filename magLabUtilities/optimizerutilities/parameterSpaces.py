@@ -1,6 +1,7 @@
 #!python3
 
 import json
+import numpy as np
 from typing import Dict, List, Tuple, Union
 
 # class ParameterSpace:
@@ -45,13 +46,14 @@ class TestGrid:
         return len(self.testGridIndices)
 
 class GridNode:
-    def __init__(self, indexList, parameterList):
+    def __init__(self, indexList:List[np.float64], parameterList):
         self._indexList = indexList
         self._coordList = []
         for index, parameter in enumerate(parameterList):
             self._coordList.append(parameter['initialValue'] + parameter['stepSize'] * float(self._indexList[index]))
         self._loss = None
-        self._data = None
+        self._refData = None
+        self._testData = None
 
         # self.mp.out(['GridNode'], 'Created GridNode with %s and %s' % (self._indexList, self._coordList))
 
@@ -72,9 +74,17 @@ class GridNode:
         self._loss = loss
 
     @property
-    def data(self):
-        return self._data
+    def refData(self):
+        return self._refData
 
-    @data.setter
-    def data(self, data):
-        self._data = data
+    @refData.setter
+    def refData(self, data):
+        self._refData = data
+
+    @property
+    def testData(self):
+        return self._testData
+
+    @testData.setter
+    def testData(self, data):
+        self._testdata = data
