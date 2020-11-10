@@ -108,11 +108,4 @@ if __name__ == '__main__':
     tuner = GradientDescent(parameterList, cost.evaluate, plotter.plotGridNode)
     tuner.tune(numIterations=np.infty, maxThreads=8)
 
-    # Loop
-    #   Collect neighbor nodes
-    #   Generate "model" circle
-    #   Evaluate loss function on each node
-    #   Choose lowest loss
-    #   Plot
-
     print('done.')
