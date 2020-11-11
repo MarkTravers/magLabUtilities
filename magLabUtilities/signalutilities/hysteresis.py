@@ -410,4 +410,16 @@ class XExpOfHGedney071720:
         hysteresisBundle.addSignal('Xrev', xRevSignal)
 
         return hysteresisBundle
+
+class XExpGedney101620:
+    def __init__(self, xInit:np.float64, mSat:np.float64, mNuc:np.float64, hCoercive:np.float64, hAnh:np.float64, hCoop:np.float64):
+        self.xInit = xInit
+        self.mSat = mSat
+        self.mNuc = mNuc
+        self.hCoercive = hCoercive
+        self.hAnh = hAnh
+        self.hCoop = hCoop
+
+    def evaluate(mSignal:Signal, mRev:np.float64, hRev:np.float64, curveRegion:str):
+        deltaM = 
         

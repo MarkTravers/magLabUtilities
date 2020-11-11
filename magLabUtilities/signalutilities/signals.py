@@ -42,11 +42,17 @@ class SignalThread:
 
     @property
     def length(self):
-        return self.data.size    
+        return self.data.size
 
 class Signal:
     def __init__(self, signalConstructorType:str, constructorTuple:Tuple):
-        if signalConstructorType == 'fromThreadPair':
+        if signalConstructorType == 'like':
+            # constructorTuple = [SignalThread, SignalThread]
+            self.independentThread = constructorTuple[0]
+            self.dependentThread = constructorTuple[1]
+            self.signalType = 'discrete'
+
+        elif signalConstructorType == 'fromThreadPair':
             # constructorTuple = [SignalThread, SignalThread]
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
@@ -69,6 +75,10 @@ class Signal:
             self.independentThread = constructorTuple[0]
             self.dependentThread = constructorTuple[1]
             self.signalType = 'discrete'
+
+    @classmethod
+    def like(cls, signal:Signal):
+        return cls('like', (np.zeros_like(signal.independentThread.data), signal.dependentThread.data))
 
     @classmethod
     def fromThreadPair(cls, independentThread:SignalThread, dependentThread:SignalThread):
