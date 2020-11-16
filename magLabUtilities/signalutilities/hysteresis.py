@@ -15,6 +15,7 @@
 
 import numpy as np
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
+from magLabUtilities.signalutilities.calculus import integralTrapQuadrature
 from magLabUtilities.exceptions.exceptions import SignalTypeError
 
 class HysteresisSignalBundle(SignalBundle):
@@ -420,6 +421,49 @@ class XExpGendey101620:
         self.hAnh = hAnh
         self.hCoop = hCoop
 
-    def evaluate(self, mSignal:Signal, mRev:np.float64, curveRegion:str):
-        pass
-        
+    def evaluate(self, mSignal:Signal, mRev:np.float64, hRev:np.float64, curveRegion:str):
+        # Calculate intermediate expressions
+        m = np.divide(mSignal.independentThread.data, self.mSat)
+        xR = 1.0 - np.power(m, 2)
+        dM = np.abs(np.subtract(mSignal.independentThread.data, mRev))
+
+        # Setup constants which change for virgin and reversal regions in and out of nucleation
+        if curveRegion == 'virgin':
+            hCP = self.hCoercive * 0.5
+        elif curveRegion == 'reversal':
+            if abs(mRev) > self.mNuc:
+                if mRev < 0:
+                    mRev = -self.mNuc
+                else:
+                    mRev = self.mNuc
+            hCP = self.hCoop
+
+        # Set up Xrm and Xrc
+        xRM = np.empty_like(mSignal.independentThread.data)
+        xRC = np.empty_like(mSignal.independentThread.data)
+        mPosIndices = np.asarray(mSignal.independentThread.data > 0.0).nonzero()
+        mNegIndices = np.asarray(mSignal.independentThread.data <= 0.0).nonzero()
+        if mRev > 0.0:
+            xRM[mPosIndices] = 1.0 + np.power(m[mPosIndices], 2)
+            xRM[mNegIndices] = xR[mNegIndices]
+            xRC[mPosIndices] = xR[mPosIndices]
+            xRC[mNegIndices] = 1.0 + np.power(m[mNegIndices], 2)
+        else:
+            xRM[mNegIndices] = 1.0 + np.power(m[mNegIndices], 2)
+            xRM[mPosIndices] = xR[mPosIndices]
+            xRC[mNegIndices] = xR[mNegIndices]
+            xRC[mPosIndices] = 1.0 + np.power(m[mPosIndices], 2)
+
+        # Calculate Xexp
+        xExp = xR * self.xInit
+        belowNucIndices = np.asarray(np.abs(mSignal.independentThread.data) <= self.mNuc).nonzero()
+        exponents = dM[belowNucIndices] / (self.xInit * (np.divide(hCP,np.float_power(xRC[belowNucIndices], 2.5)) + np.divide(self.hAnh*dM[belowNucIndices], self.mSat*np.float_power(xRM[belowNucIndices], 2.0))))
+        xExp[belowNucIndices] = np.multiply(xExp[belowNucIndices], np.exp(exponents))
+
+        # Calculate H
+        # hThread = integralTrapQuadrature(1.0/xExp, mSignal.independentThread.data, hRev)
+        hThread = integralTrapQuadrature(1.0/xExp, mSignal.independentThread.data, hRev)
+
+        # Compile SignalBundle
+        signalBundleArray = np.vstack((mSignal.dependentThread.data, mSignal.independentThread.data, hThread.data, xExp))
+        return HysteresisSignalBundle(SignalBundle.fromSignalBundleArray(signalBundleArray, ['M','H','X']))
