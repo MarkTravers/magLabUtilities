@@ -70,7 +70,7 @@ class Legendre:
             alphaArray = np.zeros((self.legendreOrder + 1, 1))
             for m in range(self.legendreOrder+1):
                 # innerProduct = integralTrapQuadrature(SignalThread(legValueArray[m,:] * interpX), SignalThread(psiTArray)).independentThread.data[-1]
-                innerProduct = integralTrapQuadrature(SignalThread(legValueArray[m,:] * interpX), SignalThread(interpT)).independentThread.data[-1]
+                innerProduct = integralTrapQuadrature(SignalThread(legValueArray[m,:] * interpX), SignalThread(interpT),c=0.0).data[-1]
 
                 alphaArray[m] = (2.0 * m + 1.0) / (interpT[-1] - interpT[0]) * innerProduct
 

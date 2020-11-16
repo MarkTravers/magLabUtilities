@@ -107,7 +107,7 @@ class Signal:
         return cls(signalConstructorType, (independentThread, dependentThread))
 
     @classmethod
-    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tStart:float):
+    def fromSingleThread(cls, independentThread:SignalThread, parameterizationMethod:str, tStart:np.float64=0.0, totalArcLength:np.float64=None):
         # Check independentThread type
         if isinstance(independentThread, SignalThread):
             independentThread = independentThread
@@ -118,7 +118,7 @@ class Signal:
         if parameterizationMethod == 'indices':
             dependentThread = SignalThread(np.arange(0, independentThread.length, step=1))
         elif parameterizationMethod == 'arcLength':
-            dependentThread = SignalThread(Signal.arcLength1D(independentThread.data))
+            dependentThread = SignalThread(Signal.arcLength1D(independentThread.data, prependArcLength=tStart, totalArcLength=totalArcLength))
         else:
             raise SignalValueError('Parameterization method ''%s'' is not recognized.')
 
