@@ -35,3 +35,7 @@ def importFromXlsx(fp:str, sheetName:str, headerRow:int, excelDataColumns:str, e
                 fileSignalBundle.addSignal(dataColumnNames[i], Signal.fromThreadPair(independentThread, dependentThread))
 
         return fileSignalBundle
+
+def exportSignalArrayToXlsx(fp:str, exportBundleArray:np.ndarray, columnNames:List[str], sheetName:str):
+    arrayDataFrame = pd.DataFrame(exportBundleArray.T)
+    arrayDataFrame.to_excel(fp, sheet_name=sheetName, header=columnNames, index=False)
