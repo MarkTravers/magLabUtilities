@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='magLabUtilities',
-    version='0.1.0',
+    version='1.0.0',
     author='Mark Travers',
     author_email='mark.2.travers@ucdenver.edu',
     description='Commonly used utilities in the UC Denver magnetics lab.',
