@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import re
 from typing import List
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
 from magLabUtilities.exceptions.exceptions import FileIOValueError

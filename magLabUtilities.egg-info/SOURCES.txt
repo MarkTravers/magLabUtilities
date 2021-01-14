@@ -9,6 +9,8 @@ magLabUtilities.egg-info/top_level.txt
 magLabUtilities/cubitutilities/__init__.py
 magLabUtilities/datafileutilities/__init__.py
 magLabUtilities/datafileutilities/timeDomain.py
+magLabUtilities/exceptions/__init__.py
+magLabUtilities/exceptions/exceptions.py
 magLabUtilities/magstromutilities/__init__.py
 magLabUtilities/magstromutilities/inputFile.py
 magLabUtilities/magstromutilities/modelFile.py
@@ -26,6 +28,8 @@ magLabUtilities/signalutilities/interpolation.py
 magLabUtilities/signalutilities/signals.py
 magLabUtilities/uiutilities/__init__.py
 magLabUtilities/uiutilities/messagepipe.py
+magLabUtilities/uiutilities/plotting/__init__.py
+magLabUtilities/uiutilities/plotting/hysteresis.py
 magLabUtilities/workflows/__init__.py
 magLabUtilities/workflows/fitMHModelToData.py
 magLabUtilities/workflows/topLevelThoughts.py
