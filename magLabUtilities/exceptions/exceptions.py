@@ -1,5 +1,6 @@
 #!python3
 
+### Exceptions ###
 class Error(Exception):
     pass
 
@@ -19,4 +20,10 @@ class UITypeError(TypeError):
     pass
 
 class UIValueError(ValueError):
+    pass
+
+### Warnings ###
+import warnings
+
+class DatafileImportWarning(Warning):
     pass
