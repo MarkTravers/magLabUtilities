@@ -2,7 +2,10 @@
 
 import numpy as np
 from typing import Tuple, List, Any
-import matlab.engine
+try:
+    import matlab.engine
+except ImportError:
+    raise ImportError('Refer to magLabUtilities/docs/setupMatlabEngine to configure matlab.engine')
 from magLabUtilities.signalutilities.hysteresis import HysteresisSignalBundle
 from magLabUtilities.exceptions.exceptions import UITypeError, UIValueError
 

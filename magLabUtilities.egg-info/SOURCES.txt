@@ -1,6 +1,8 @@
+MANIFEST.in
 README.md
 setup.py
 magLabUtilities/__init__.py
+magLabUtilities/config.py
 magLabUtilities.egg-info/PKG-INFO
 magLabUtilities.egg-info/SOURCES.txt
 magLabUtilities.egg-info/dependency_links.txt
@@ -9,6 +11,8 @@ magLabUtilities.egg-info/top_level.txt
 magLabUtilities/cubitutilities/__init__.py
 magLabUtilities/datafileutilities/__init__.py
 magLabUtilities/datafileutilities/timeDomain.py
+magLabUtilities/docs/magLabUtilitiesDesigns.docx
+magLabUtilities/docs/setupMatlabEngine.txt
 magLabUtilities/exceptions/__init__.py
 magLabUtilities/exceptions/exceptions.py
 magLabUtilities/magstromutilities/__init__.py
@@ -30,6 +34,8 @@ magLabUtilities/uiutilities/__init__.py
 magLabUtilities/uiutilities/messagepipe.py
 magLabUtilities/uiutilities/plotting/__init__.py
 magLabUtilities/uiutilities/plotting/hysteresis.py
+magLabUtilities/vsmutilities/__init__.py
+magLabUtilities/vsmutilities/ezVSM.py
 magLabUtilities/workflows/__init__.py
 magLabUtilities/workflows/fitMHModelToData.py
 magLabUtilities/workflows/topLevelThoughts.py
