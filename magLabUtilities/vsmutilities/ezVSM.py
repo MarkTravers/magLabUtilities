@@ -219,3 +219,5 @@ def extractDataTable(dataFileContents:List[str]) -> np.ndarray:
             stopLine = n
             break
     return(np.genfromtxt(dataFileContents[startLine:stopLine], dtype=np.float64))
+
+

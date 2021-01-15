@@ -1,6 +1,6 @@
 #!python
 
-from magLabUtilities.datafileutilities.ezVSM import importDataFile
+from magLabUtilities.vsmutilities.ezVSM import importDataFile
 from magLabUtilities.uiutilities.plotting.hysteresis import MofHPlotter
 from magLabUtilities.signalutilities.hysteresis import HysteresisSignalBundle
 
