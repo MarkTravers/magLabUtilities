@@ -60,18 +60,18 @@ def finiteDiffDerivative(fNum:np.ndarray, fDenom:np.ndarray, windowRadius:np.int
         # print ('Index: %d    F: %e    Left Index: %d    F(left): %e    Right Index: %d    F(right):    %e    dF: %e' % (index, fNum[index], windowIndices[0], fNum[windowIndices[0]], windowIndices[1], fNum[windowIndices[1]], dF[index]))
     return np.array(dF, dtype=np.float32)
 
-def integralIndexQuadrature(independentThread:np.ndarray, dependentThread:np.ndarray):
+def integralIndexQuadrature(independentThread:np.ndarray, dependentThread:np.ndarray, c:np.float64=0.0) -> SignalThread:
     dT = np.ediff1d(dependentThread, to_begin=dependentThread[0])
-    return np.cumsum(independentThread.data * dT)
+    return SignalThread(np.cumsum(independentThread.data * dT) + c)
 
-def integralTrapQuadrature(independentThread:SignalThread, dependentThread:SignalThread) -> Signal:
+def integralTrapQuadrature(independentThread:SignalThread, dependentThread:SignalThread, c:np.float64=0.0) -> SignalThread:
     dT = np.ediff1d(dependentThread.data)
     dX = np.ediff1d(independentThread.data)
 
     outputArray = np.array(np.zeros_like(independentThread.data), dtype=np.float64)
     outputArray[1:] = dT * independentThread.data[:-1] + 0.5 * dT * dX
 
-    return Signal.fromThreadPair(SignalThread(np.cumsum(outputArray)), dependentThread)
+    return SignalThread(np.cumsum(outputArray) + c)
 
 # integral(data, a, b, quadratureMode=['dataPoints', 'quadrature'], params)
 

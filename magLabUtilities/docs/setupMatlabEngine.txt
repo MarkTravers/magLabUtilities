@@ -1,0 +1,24 @@
+MagLabUtilities - Docs
+
+Instructions for configuring the Matlab engine for Python.
+    (Reference https://www.mathworks.com/help/matlab/matlab-engine-for-python.html for more information.)
+
+Author: Mark Travers
+Revised: 1/15/2021
+
+Several components of magLabUtilities (such as magLabUtilities.uiutilities.plotting.hysteresis) use
+an instance of the Matlab engine for Python for things like creating plots. The Matlab engine for 
+Python is not installable with Pip, as it is proprietary software which requires Matlab to be installed.
+Therefore, the Matlab engine for Python must be manually configured if any functions requiring it are
+desired.
+
+Requirements:
+    - An installed version of Matlab
+    - Python 2.7, 3.6, 3.7, or 3.8 (More versions may work, but these are the versions listed in the link above.)
+
+1. Open CMD as Administrator (right-click on CMD)
+2. >cd matlabroot\extern\engines\python (matlabroot is obtained by typing 'matlabroot' into the terminal inside Matlab.)
+3. >python setup.py install
+
+Note that if the user is running magLabUtilities inside a virtual environment, setup.py must be run using
+this virtual environment.

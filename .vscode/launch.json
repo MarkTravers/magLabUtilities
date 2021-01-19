@@ -129,6 +129,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/canonicalOptimizerTest.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run xExpGedney101620.py (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/xExpGedney101620.py",
+            "console": "integratedTerminal"
         }
     ]
 }
