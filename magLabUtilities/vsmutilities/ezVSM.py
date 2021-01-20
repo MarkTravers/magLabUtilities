@@ -6,6 +6,7 @@ import warnings
 from magLabUtilities.signalutilities.signals import SignalThread, Signal, SignalBundle
 from magLabUtilities.config import Constants
 from magLabUtilities.exceptions.exceptions import FileIOValueError
+from magLabUtilities.datafileutilities.common import replaceTagsInTxt
 
 # Column 0: Time since start, Time [s]
 # Column 1: Raw Temperature, Sample Temperature [degC]
@@ -220,4 +221,30 @@ def extractDataTable(dataFileContents:List[str]) -> np.ndarray:
             break
     return(np.genfromtxt(dataFileContents[startLine:stopLine], dtype=np.float64))
 
-def insertSignalInQSRecipe(recipeTemplateFP:str, newRecipeFP:str, waveForm:Signal, tagToReplace:str='') -> 
+def insertSignalIntoQSRecipe(recipeTemplateFP:str, newRecipeFP:str, hAppThread:SignalThread, tagToReplace:str='') -> None:
+    hAppFrom = hAppThread.data[0]
+    hAppTo = hAppThread.data[1]
+    stepSize = abs(hAppFrom - hAppTo)
+    vsmCommandString = '@Number of sections= %d\n' % (hAppThread.data.size - 1)
+    vsmCommandString += '@Section 0: Hysteresis; New Plot\n'
+    vsmCommandString += '@Preparation Actions:\n'
+    vsmCommandString += 'Action 0:      Set Gauss Range to 4.0000 [ ] and wait 0.0000 s ; Set Mode = Set and wait till there\n'
+    vsmCommandString += '@Repeated Actions:\n'
+    vsmCommandString += 'Action 0:      Set Applied Field to 0.0000 [Oe] and wait 0.0000 s ; Set Mode = Set and wait till there; Measure \n'
+    vsmCommandString += '@Main Parameter = 0 : Applied Field [Oe].\n'
+    vsmCommandString += '@Main Parameter Setup:\n'
+    vsmCommandString += '     From: %.4f [Oe] To: %.4f [Oe] Min Stepsize/Sweeprate = %.4f [Oe] Max Stepsize/Sweeprate = %.4f [Oe]\n' % (hAppFrom, hAppTo, stepSize, stepSize)
+    vsmCommandString += '     Signal change min step =  0.00 [%] Signal change max step =  0.00 [%] ;  Wait time =    0.00 [sec] Up & Down = No\n'
+    vsmCommandString += '@Measured Signal(s) = X & Y\n'
+    vsmCommandString += '@Section 0 END\n'
+    for i in range(1, hAppThread.data.size - 1):
+        hAppFrom = hAppThread.data[i]
+        hAppTo = hAppThread.data[i+1]
+        stepSize = abs(hAppFrom - hAppTo)
+        vsmCommandString = vsmCommandString + '@Section %d: Hysteresis\n' % (i)
+        vsmCommandString = vsmCommandString + '@Main Parameter Setup:\n'
+        vsmCommandString = vsmCommandString + '     From: %.4f [Oe] To: %.4f [Oe] Min Stepsize/Sweeprate = %.4f [Oe] Max Stepsize/Sweeprate = %.4f [Oe]\n' % (hAppFrom, hAppTo, stepSize, stepSize)
+        vsmCommandString = vsmCommandString + '     Signal change min step =  0.00 [%] Signal change max step =  0.00 [%] ;  Wait time =    0.00 [sec] Up & Down = No\n'
+        vsmCommandString = vsmCommandString + '@Section %d END\n' % (i)
+
+    replaceTagsInTxt(recipeTemplateFP, newRecipeFP, {'__insert_section_data_here__\n':vsmCommandString})

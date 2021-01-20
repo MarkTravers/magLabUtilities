@@ -1,0 +1,386 @@
+@Filename: c:\vsm-lv\System_Admin\Recipes\sat_loop_Step_logScale_2x.VHC
+@Measurement Controlfilename: c:\vsm-lv\System_Admin\Recipes\sat_loop_Step_logScale_2x.VHC
+@Calibration filename: c:\vsm-lv\System_Admin\settings\default.cal
+@Parameter Filec:\vsm-lv\System_Admin\settings\last-params.par
+@Operator: System_Admin
+@Samplename: HY100
+@Date: Thursday, January 10, 2019    (2019-01-10)
+@Time: 09:53:42
+@Test ID: test
+@Sample Orientation and Shape: line parallel with field
+Sample Holder and Orientation8 mm Quartz Transverse
+@@Sample Dimensions
+Shape = Cylindrical;  Length = 0.13 [mm] Width = 6.60 [mm] Thickness = 1.000E+3 [nm] Diameter = 26.08 [mm] Volume : 6.736E-8 [m^3] Area = 0.000E+0 [mm^2] Mass = 5.275E-1 [g] Nd =  0.00 Sample Angle Offset = 0.000 
+Ms (for Hys loss calculation) = 0.000 [memu]
+@@End Sample Dimensions
+@Measurement type: Hysteresis Loop
+@Product of: MicroSense EasyVSM Software version EasyVSM 20170726-01
+@@Comments: 
+@@END Comments
+@@Parameters
+@@Measurement Preparation Actions
+Action 0:      Set Field Angle to 0.0000 [deg] and wait 0.0000 s ; Set Mode = Set and wait till there
+@@END Measurement Preparation Actions
+@@Measurement Parameters
+@Repeat all sections = No
+__insert_section_data_here__
+@@Plot Settings
+Number of plots: 2
+Plot 0: Hysteresis = On; Section: 0; Signal: X; Label: Hys X; Point style: 12; Interpolation: On; Color: 0; Mirror: Off
+Plot 1: Hysteresis = On; Section: 0; Signal: Y; Label: Hys Y; Point style: 0; Interpolation: On; Color: 0; Mirror: Off
+@@ENDPlot Settings
+@@END Measurement Parameters
+@Apparatus: EZ7; LabVSM; Customer:Colorado Uni; first started on: Friday May 19, 2017
+[Installed Options]
+VSM Model="EZ7, EZ9 or EZ11"
+VSM=TRUE    
+Torque=FALSE    
+Signal Processor="2 SR810"
+Torque Signal Processor="NI-6210"
+Unipolar=FALSE
+Automation=FALSE
+MR=TRUE
+Torque Signal Inversion=TRUE    
+VSM DAQ Card=TRUE    
+Time Constant="0.1 s"
+DAQ Output=FALSE    
+Link Sensitivities=FALSE
+
+[Signal and Coils]
+Signal Connection="A-B"
+Vector Coils=FALSE    
+Stationary Coils=FALSE    
+Z Coils=FALSE    
+Sensor Angle="0 deg"
+Time Between Averages=0.140000    
+Y Averages Multiplier=1    
+Reference Source="Internal"
+SR830 Frequency=70.000000    
+
+[Rotation]
+Automatic Rotation=TRUE    
+Rotate Option="Mdrive"
+Rotation Display=FALSE    
+Max Angle=400.000000    
+Min Angle=-400.000000    
+Rotation Serial Port=6    
+Rotation Display Serial Port=1    
+Torque Rotation Serial Port=2    
+Use Friction Compensation=TRUE    
+Friction Compensation Angle=0.500000    
+Default Speed=1.000000    
+Max Speed=1.000000    
+
+[Field]
+Gaussmeter="FCM-10"
+Gauss Probe="1 x"
+Maximum Field=18000.000000    
+Wait Time=0.000000    
+Sweeprate Array="20.000, 50.000, 100.000, 200.000, 400.000, 750.000, 1500.000, 2000.000, 2000.000, 2000.000, "
+Averaging Array="10, 5, 5, 2, 1, 1, 1, 1, 1, 1, "
+Precision Array="0.010, 0.020, 0.050, 0.100, 0.100, 0.200, 0.200, 3.000, 3.000, 5.000, "
+Stability Array="0.010, 0.020, 0.050, 0.100, 0.100, 0.200, 0.200, 3.000, 3.000, 5.000, "
+FCM-10 Address="COM7"
+Minimum Sweep Time=0.500000    
+Minimum Sweep Rate Divider=40.000000    
+Stability Time Between Readings=0.100000    
+Number of Readings for Stability Check=2.000000    
+Slow Approach=FALSE    
+Slow Start %=90.000000    
+Slow Approach Max Sweep Rate Divider=10.000000    
+Max Slow Sweep Time=4.000000    
+DAQ Field Source="Direct"
+Field DAQ Channel="Dev1/ai0"
+Always Set Gauss Range=TRUE    
+Additional Sweep Measure Time=5000    
+
+[MR]
+MR Signal Processor=Manual VSM
+Punch Through="Variable 0-10V"
+Automation Comm Port=0
+Max Current=20.000000    
+Min AD Voltage=4.600000    
+Max AD Voltage=7.000000    
+MR Option=FALSE    
+MS MR Signal Processor=FALSE    
+AC&DC Current Source=FALSE    
+Nanovoltmeter=FALSE    
+
+[Temperature Control]
+Temperature Control=TRUE    
+Boil Off Nitrogen=FALSE    
+Liquid Helium=FALSE    
+Leave Temperature On=FALSE    
+Temperature Control Type="SI 9700"
+Sensor A="E-type"
+Sensor B="E-type"
+Control Sensor="A"
+Sensor A Table=""
+Sensor B Table=""
+ITC Serial Port=2    
+TC GPIB Address=15    
+Temperature Log File="/c/vsm-lv/temperature.log"
+Default Temperature=298.150000    
+Gas Switching Temperature=333.150000    
+Default Soak Time=120.000000    
+Set Temperature Sample Time=25.000000    
+Temperature Accuracy=1.000000    
+Temperature Accuracy %=1.000000    
+Automatic Gas Switching=FALSE    
+1000 C Option=FALSE    
+Number of points for accuracy wait=90    
+Time between points for accuracy wait=1.000000    
+Wait for Heat Exchanger Removal=TRUE    
+Removal Temperature=303.150000    
+Wait Time for Heat Exchanger Removal=120.000000    
+
+[SI 9700]
+P=1    
+I=20    
+D=0    
+HE-P=1    
+HE-I=20    
+HE-D=0    
+Max T Sweep Seed=1.000000
+Min T Sweep Seed=0.200000
+Max Heater Power=60    
+Max T Sweep Speed=60.000000    
+Min T Sweep Speed=12.000000    
+Communication=0    
+
+[Other]
+Transverse Direction="Absolute"
+Default Transverse Direction=90.000000    
+Time Dependence Start Field Distance=10.000000    
+Minimum Remanence Wait Time=2.000000    
+Default AC Demag Max Field=1.000000    
+AC Demag Minimum Field=1.000000    
+Max Lockin Phase Error=90    
+Mains Frequency=60.000000    
+Samples Per Cycle=100
+DAQ Averaging Method="All at once (default)"
+AC Demag Data Saving=FALSE    
+Samples Per Second=50000    
+Data Manipulation While Sweeping=FALSE    
+Auto Range-Changing="Up Ranging Only"
+Auto Ranging="Measured Signal"
+Worst Case Slope=-0.000000    
+DAQ Pts/Sec="Vibration Frequency Synchronous"
+
+[Interlock]
+Door Lock=FALSE    
+Interlock=FALSE    
+Light Tower=FALSE    
+Interlock Interface Name="Dev4"
+
+[Torque Interface]
+Torque Interface Name="Dev3"
+
+[Exit Gas Heater Settings]
+EGH PC Control=FALSE    
+EGH Serial Port=0    
+EGH Voltages=""
+
+[VSM Interface]
+VSM Interface Name="Dev1"
+VSM X Channel="Dev1/ai1"
+VSM Y Channel="Dev1/ai2"
+
+[MR Interface]
+MR Interface Name="Dev2"
+
+[DAQ Communication]
+Protocol="Mx"
+Remove Spikes=FALSE    
+
+[Sensor Table]
+1st Column=0    
+Temperature Unit=0    
+
+[Communication]
+LIA 1 Address="GPIB0::8::INSTR"
+LIA 2 Address="GPIB0::9::INSTR"
+VSM Rotation Address="COM6"
+Torque Rotation Address=""
+Rotation Display Address=""
+SI9700 Address="GPIB0::15::INSTR"
+EGH Address=""
+Communication Mode="Original"
+LIA Baud Rate="19200"
+LIA Serial Read Delay=50    
+
+[LIA]
+Local=2    
+Minimum Sensitivity="5 uV"
+Filter Order="24 dB/Oct"
+Sync Filter="Off"
+Line Filter="Off"
+Sweep Lag=3.880000    
+
+[MR External Current Source]
+Ext I Src Adddress=""
+AC MR Channel="Dev1/ai3"
+DC MR Channel="Dev1/ai6"
+Read Termination Character="CR"
+CS Baud Rate="19200"
+Flow Control="Off"
+Which LIA="1"
+Input="A-B"
+Ref Slope="Positive Slope TTL"
+Nanovoltmeter Channel=""
+
+[MOKE Option]
+MOKE Option Installed=FALSE    
+MOKE DAQ Channel=""
+
+[Automation]
+Automation Option=FALSE    
+Which DAQ="DT"
+Robot Comm Port=1    
+Vacuum Address="Dev1/port0/line0:7"
+Coils Up Address="Dev1/port0/line0:7"
+Coils Down Address="Dev1/port0/line0:7"
+Vacuum Sensor Address="Dev1/port0/line0:7"
+MR Signal Processor="Manual"
+Unique Tool ID=""
+Installed Pedestals="ABCDEF"
+Samples Per Cartridge=16    
+Kerr Rotation=FALSE    
+Auto Initialize Hardware=FALSE    
+Log Off after Committing a Lot=FALSE    
+MR Probe Safe Motion=FALSE    
+Punch Speed=16.000000    
+Sample Orientation="Horizontal"
+Robot Commands="Original"
+Use Status Globals=FALSE    
+Show Robot Motion Display=FALSE    
+
+[Power Amplifier]
+Power Amp Type="Default"
+Power Amp Address="COM1"
+AC Frequency=16.000000
+Max AC Current=3.000000
+Max DC Current=0.950000
+
+[PID COntrol]
+PID Control Type="Single PID"
+P=1
+I=20
+D=0
+HE-P=1
+HE-I=20
+HE-D=0
+Zone Settings="50.000000,1,45,0;100.000000,1,20,0;300.000000,1,20,0;1500.000000,1,20,0;"
+[FCM-10 Feedback Parameter Switching]
+Switching = TRUE; Wait Before = 4000; Wait After = 2000; Progressive = TRUE; Progressive time =0.015000;
+100 Oe: Field Setting Pars: FTCR = 100000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 100000; DR = 10000; DC = 10000; MDAC = 10000;
+200 Oe: Field Setting Pars: FTCR = 50000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 50000; DR = 10000; DC = 10000; MDAC = 10000;
+400 Oe: Field Setting Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 10000;
+1k Oe: Field Setting Pars: FTCR = 2000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 10000;
+2 kOe: Field Setting Pars: FTCR = 2000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 10000;
+4 kOe: Field Setting Pars: FTCR = 2000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 10000;
+10 kOe: Field Setting Pars: FTCR = 2000; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 10000;
+20 kOe: Field Setting Pars: FTCR = 200; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 65000;
+40 kOe: Field Setting Pars: FTCR = 200; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 65000;
+100 kOe: Field Setting Pars: FTCR = 200; DR = 10000; DC = 10000; MDAC = 30000; Measurement Pars: FTCR = 20000; DR = 10000; DC = 10000; MDAC = 65000;
+@@Instrument Parameters
+Stationary Coils = FALSE
+Sensor Angle = 0 deg
+@Gauss Range: 2 kOe
+@Emu Range: 1 V
+@Torque Range: 4000 dyne cm
+@Auto-range emu: No
+@Time Constant: 0.1 s
+@Filter Order: 24 dB/Oct
+@Line Filter: Off
+@Synchronous Filter: Off
+@Dynamic Reserve: Low Noise
+@Number of averages: 20
+@Rot 0 deg cal: -21000
+@Rot 360 deg cal: 21000
+@Dec Pt. constant: 1000
+@Emu dec cal: 100
+@Emdac: 28000.000
+@Emu/v: 2400.990
+@Y Coils Correction Factor: 1.300
+@Sample Shape Correction Factor: 1.000
+@Coil Angle Alpha: 45.000
+[Data Manipulation]
+v20160315
+
+Point By Point Correction = No   Scale Factor = 1.000000
+Point By Point number of fields = 13
+-6000.144826   9.303753E-3   0.000000E+0   0.000000E+0
+-5000.070983   7.553749E-3   0.000000E+0   0.000000E+0
+-4000.025747   5.928757E-3   0.000000E+0   0.000000E+0
+-3000.037726   4.307644E-3   0.000000E+0   0.000000E+0
+-2000.056858   2.728530E-3   0.000000E+0   0.000000E+0
+-1000.083141   1.168078E-3   0.000000E+0   0.000000E+0
+-0.045057   -2.089367E-4   0.000000E+0   0.000000E+0
+1000.000179   -1.489916E-3   0.000000E+0   0.000000E+0
+2000.009655   -3.052099E-3   0.000000E+0   0.000000E+0
+3000.019131   -4.624503E-3   0.000000E+0   0.000000E+0
+3999.978544   -6.333317E-3   0.000000E+0   0.000000E+0
+5000.080995   -7.968264E-3   0.000000E+0   0.000000E+0
+5999.990345   -9.591361E-3   0.000000E+0   0.000000E+0
+
+Subtract Files = No   Scale Factor = 1.000000
+File Data array length = 0
+
+[Image Effect Corrections]
+Image Effect Correction = Yes
+Image Correction Array Length = 0
+Sample image effect correction factor = 1.000000, Sample holder image effect correction factor = 1.000000
+Angular Im. E. Corr. = No
+
+[Slope and Offset Corrections]
+Manual Slope and Offset Correction = Yes
+Background slope x, y, z [emu/Oe] = -3.088437E-6   -0.000000E+0   -0.000000E+0
+Background Offset x, y, z [emu] = -3.502160E-4   -0.000000E+0   -0.000000E+0
+Secondary  slope = 0.00000E+0; Pos Field = 0.000; Neg Field = 0.000; Neg Slope = 0.00000E+0
+Angular Background Subtraction = Yes
+Angular BG Signal array length = 0
+Automatically Remove Slope = No    Slope Correction Start Field = 4000.000 [Oe], Use Max Field = No, Slope Correction Max Field = 40000.000 [Oe]
+Remove Signal Offset = No
+Remove Sweep Offset = No; Swp Corr Method = Automatic Using AVG; Swp Offset x,y,z [emu] = 0.000000E+0   0.000000E+0   0.000000E+0
+
+[Field Corrections]
+Field Linearity Correction = No
+Remove Field Offset = No
+Field Offset Method = Automatic
+Field Offset = 0.0000
+Remove Field Lag = No
+Field Lag Method = Automatic
+Field Lag = 0.0000
+
+[Demagnetizing Field Correction]
+Demagnetizing Field Correction = No; Nd = 1.000   (x 4 Pi)
+
+[Sensitivity Corrections]
+Sensitivity Correction = No; X correction factor = 1.000; Y correction factor = 1.000; Z correction factor = 1.000
+Temperature Dependent Sens. Corr. = No; Temp_Corr Factors (X,Y,Z) = 1.000000   1.000000   1.000000
+Angular Sensitivity Correction = No
+
+Date and time of last calibration = Wednesday, January 9, 2019  12:34:33
+@@END Instrument Parameters
+@@END Parameters
+@@Columns
+@Column Separator:    
+@Column Contents: 
+@Number of sections: 22
+@Section 0
+Column 0: Time since start, Time [s]
+Column 1: Raw Temperature, Sample Temperature [degC]
+Column 2: Temperature, Sample Temperature [degC]
+Column 3: Temperature 2, Sample Temperature [degC]
+Column 4: Raw Applied Field, Applied Field [Oe]
+Column 5: Applied Field, Applied Field [Oe]
+Column 6: Field Angle, Field Angle [deg]
+Column 7: Raw Applied Field For Plot , Applied Field [Oe]
+Column 8: Applied Field For Plot , Applied Field [Oe]
+Column 9: Raw Signal Mx, Moment as measured [memu]
+Column 10: Raw Signal My, Moment as measured [memu]
+Column 11: Signal X direction, Moment [emu]
+Column 12: Signal Y direction, Moment [emu]
+@@END Columns
+@@End of Header.
