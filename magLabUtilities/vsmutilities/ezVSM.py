@@ -32,7 +32,7 @@ from magLabUtilities.exceptions.exceptions import FileIOValueError
 # Column 10: Raw Signal My, Moment as measured [memu]
 # Column 11: Signal X direction, Moment [emu]
 # Column 12: Signal Y direction, Moment [emu]
-def importDataFile(dataFileFP,
+def importDataFile(dataFileFP:str,
             # Time
             timeSinceMidnight=False,
             # Temperatures
@@ -220,4 +220,4 @@ def extractDataTable(dataFileContents:List[str]) -> np.ndarray:
             break
     return(np.genfromtxt(dataFileContents[startLine:stopLine], dtype=np.float64))
 
-
+def insertSignalInQSRecipe(recipeTemplateFP:str, newRecipeFP:str, waveForm:Signal, tagToReplace:str='') -> 
